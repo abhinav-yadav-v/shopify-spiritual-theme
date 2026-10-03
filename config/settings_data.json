@@ -8,11 +8,53 @@
     "heading_font": "assistant_n4",
     "body_font": "assistant_n4",
     "max_content_width": 1200,
-    "social_facebook_link": "",
-    "social_instagram_link": "",
-    "social_twitter_link": "",
-    "social_youtube_link": "",
-    "social_pinterest_link": ""
+    "social_facebook_link": "https://facebook.com/",
+    "social_instagram_link": "https://instagram.com/",
+    "social_twitter_link": "https://twitter.com/",
+    "social_youtube_link": "https://youtube.com/",
+    "social_pinterest_link": "https://pinterest.com/",
+    "sections": {
+      "header": {
+        "type": "header",
+        "settings": {}
+      },
+      "footer": {
+        "type": "footer",
+        "settings": {}
+      }
+    },
+    "content_for_index": [
+      "hero_slideshow",
+      "featured_collections",
+      "product_grid",
+      "testimonials",
+      "newsletter",
+      "trust_badges"
+    ]
   },
-  "presets": {}
+  "presets": {
+    "Divya Mukhi Spiritual": {
+      "primary_color": "#FF6B00",
+      "secondary_color": "#8B0000",
+      "accent_color": "#D4AF37",
+      "background_color": "#FFF8F0",
+      "text_color": "#333333",
+      "heading_font": "assistant_n4",
+      "body_font": "assistant_n4",
+      "max_content_width": 1200,
+      "social_facebook_link": "https://facebook.com/",
+      "social_instagram_link": "https://instagram.com/",
+      "social_twitter_link": "https://twitter.com/",
+      "social_youtube_link": "https://youtube.com/",
+      "social_pinterest_link": "https://pinterest.com/",
+      "content_for_index": [
+        "hero_slideshow",
+        "featured_collections",
+        "product_grid",
+        "testimonials",
+        "newsletter",
+        "trust_badges"
+      ]
+    }
+  }
 }

@@ -1,0 +1,206 @@
+{%- comment -%}
+  Main 404 Section
+  Renders the 404 page not found content.
+{%- endcomment -%}
+
+{%- liquid
+  assign heading = section.settings.heading
+  assign message = section.settings.message
+  assign show_search = section.settings.show_search
+  assign show_products = section.settings.show_products
+  assign collection = section.settings.collection
+-%}
+
+<section class="main-404 section">
+  <div class="container">
+    <div class="main-404__content">
+      <div class="main-404__icon">
+        {% render 'icon', name: 'alert-circle', size: 80 %}
+      </div>
+      
+      <h1 class="main-404__heading">
+        {%- if heading != blank -%}
+          {{ heading }}
+        {%- else -%}
+          {{ 'templates.404.title' | t }}
+        {%- endif -%}
+      </h1>
+      
+      <div class="main-404__message">
+        {%- if message != blank -%}
+          {{ message }}
+        {%- else -%}
+          <p>{{ 'templates.404.subtext' | t }}</p>
+        {%- endif -%}
+      </div>
+      
+      {%- if show_search -%}
+        <div class="main-404__search">
+          <form action="{{ routes.search_url }}" method="get" role="search" class="main-404__search-form">
+            <label for="Search404Input" class="visually-hidden">{{ 'search.placeholder' | t }}</label>
+            <input
+              type="search"
+              id="Search404Input"
+              name="q"
+              class="form-input main-404__search-input"
+              placeholder="{{ 'search.placeholder' | t }}"
+              autocomplete="off"
+            >
+            <button type="submit" class="btn btn--primary main-404__search-submit">
+              {% render 'icon', name: 'search', size: 20 %}
+            </button>
+          </form>
+        </div>
+      {%- endif -%}
+      
+      <div class="main-404__actions">
+        <a href="{{ routes.root_url }}" class="btn btn--primary btn--lg">
+          {{ 'templates.404.link' | t }}
+        </a>
+        <a href="{{ routes.all_products_collection_url }}" class="btn btn--outline btn--lg">
+          {{ 'collections.view_all_products' | t }}
+        </a>
+      </div>
+    </div>
+    
+    {%- if show_products and collection != blank -%}
+      <div class="main-404__products">
+        <h2 class="main-404__products-title">{{ 'templates.404.featured_products' | t }}</h2>
+        <div class="main-404__products-grid grid grid-cols-2 md:grid-cols-4">
+          {%- for product in collections[collection].products limit: 4 -%}
+            <div class="main-404__product-item">
+              {% render 'product-card', product: product %}
+            </div>
+          {%- endfor -%}
+        </div>
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+<style>
+  .main-404__content {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: var(--spacing-8) 0;
+  }
+  
+  .main-404__icon {
+    color: var(--color-gray-300);
+    margin-bottom: var(--spacing-6);
+  }
+  
+  .main-404__icon svg {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+  }
+  
+  .main-404__heading {
+    font-size: var(--font-size-5xl);
+    color: var(--color-secondary);
+    margin-bottom: var(--spacing-4);
+  }
+  
+  @media screen and (min-width: 768px) {
+    .main-404__heading {
+      font-size: var(--font-size-6xl);
+    }
+  }
+  
+  .main-404__message {
+    font-size: var(--font-size-lg);
+    color: var(--color-gray-600);
+    margin-bottom: var(--spacing-8);
+  }
+  
+  .main-404__message p {
+    margin-bottom: var(--spacing-2);
+  }
+  
+  .main-404__search {
+    max-width: 400px;
+    margin: 0 auto var(--spacing-8);
+  }
+  
+  .main-404__search-form {
+    display: flex;
+    gap: var(--spacing-2);
+  }
+  
+  .main-404__search-input {
+    flex: 1;
+  }
+  
+  .main-404__search-submit {
+    flex-shrink: 0;
+    padding: var(--spacing-3);
+  }
+  
+  .main-404__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--spacing-4);
+  }
+  
+  .main-404__products {
+    margin-top: var(--spacing-16);
+    padding-top: var(--spacing-8);
+    border-top: 1px solid var(--color-gray-200);
+  }
+  
+  .main-404__products-title {
+    text-align: center;
+    margin-bottom: var(--spacing-8);
+  }
+  
+  .main-404__products-grid {
+    gap: var(--spacing-4);
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Main 404",
+  "tag": "section",
+  "class": "main-404-section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Page not found"
+    },
+    {
+      "type": "richtext",
+      "id": "message",
+      "label": "Message",
+      "default": "<p>Sorry, the page you're looking for doesn't exist or has been moved.</p>"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_search",
+      "label": "Show search form",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_products",
+      "label": "Show featured products",
+      "default": true
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Collection for featured products"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Main 404"
+    }
+  ]
+}
+{% endschema %}

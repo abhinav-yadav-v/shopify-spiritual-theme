@@ -1,0 +1,14 @@
+{
+  "sections": {
+    "main": {
+      "type": "main-search",
+      "settings": {
+        "show_products": true,
+        "show_pages": true,
+        "show_articles": true,
+        "results_per_page": 12
+      }
+    }
+  },
+  "order": ["main"]
+}

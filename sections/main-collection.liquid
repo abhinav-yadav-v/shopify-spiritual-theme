@@ -15,6 +15,9 @@
 
 <section class="main-collection section" data-collection-section>
   <div class="container">
+    {%- comment -%} Breadcrumb {%- endcomment -%}
+    {% render 'breadcrumb', type: 'collection', collection: collection %}
+    
     {%- comment -%} Collection Header {%- endcomment -%}
     <div class="main-collection__header">
       <h1 class="main-collection__title">{{ collection.title }}</h1>

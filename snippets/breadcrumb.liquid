@@ -1,0 +1,148 @@
+{%- comment -%}
+  Renders breadcrumb navigation for products, collections, articles, and pages.
+  
+  Parameters:
+  - type: string (required) - Type of breadcrumb: 'product', 'collection', 'article', 'page'
+  - product: product object (optional) - Product for product breadcrumb
+  - collection: collection object (optional) - Collection for collection/product breadcrumb
+  - blog: blog object (optional) - Blog for article breadcrumb
+  - article: article object (optional) - Article for article breadcrumb
+  - page: page object (optional) - Page for page breadcrumb
+  
+  Usage:
+  {% render 'breadcrumb', type: 'product', product: product, collection: collection %}
+  {% render 'breadcrumb', type: 'collection', collection: collection %}
+  {% render 'breadcrumb', type: 'article', blog: blog, article: article %}
+{%- endcomment -%}
+
+<nav class="breadcrumb" aria-label="{{ 'general.breadcrumb' | t }}">
+  <ol class="breadcrumb__list" itemscope itemtype="https://schema.org/BreadcrumbList">
+    {%- comment -%} Home {%- endcomment -%}
+    <li class="breadcrumb__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+      <a href="{{ routes.root_url }}" class="breadcrumb__link" itemprop="item">
+        <span itemprop="name">{{ 'general.home' | t }}</span>
+      </a>
+      <meta itemprop="position" content="1">
+    </li>
+    
+    {%- case type -%}
+      {%- when 'product' -%}
+        {%- comment -%} Product Breadcrumb {%- endcomment -%}
+        {%- if collection -%}
+          <li class="breadcrumb__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <span class="breadcrumb__separator" aria-hidden="true">
+              {% render 'icon', name: 'chevron-right', size: 12 %}
+            </span>
+            <a href="{{ collection.url }}" class="breadcrumb__link" itemprop="item">
+              <span itemprop="name">{{ collection.title }}</span>
+            </a>
+            <meta itemprop="position" content="2">
+          </li>
+          <li class="breadcrumb__item breadcrumb__item--current" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <span class="breadcrumb__separator" aria-hidden="true">
+              {% render 'icon', name: 'chevron-right', size: 12 %}
+            </span>
+            <span class="breadcrumb__current" itemprop="name" aria-current="page">{{ product.title }}</span>
+            <meta itemprop="position" content="3">
+          </li>
+        {%- else -%}
+          <li class="breadcrumb__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <span class="breadcrumb__separator" aria-hidden="true">
+              {% render 'icon', name: 'chevron-right', size: 12 %}
+            </span>
+            <a href="{{ routes.all_products_collection_url }}" class="breadcrumb__link" itemprop="item">
+              <span itemprop="name">{{ 'products.products' | t }}</span>
+            </a>
+            <meta itemprop="position" content="2">
+          </li>
+          <li class="breadcrumb__item breadcrumb__item--current" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <span class="breadcrumb__separator" aria-hidden="true">
+              {% render 'icon', name: 'chevron-right', size: 12 %}
+            </span>
+            <span class="breadcrumb__current" itemprop="name" aria-current="page">{{ product.title }}</span>
+            <meta itemprop="position" content="3">
+          </li>
+        {%- endif -%}
+        
+      {%- when 'collection' -%}
+        {%- comment -%} Collection Breadcrumb {%- endcomment -%}
+        <li class="breadcrumb__item breadcrumb__item--current" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <span class="breadcrumb__separator" aria-hidden="true">
+            {% render 'icon', name: 'chevron-right', size: 12 %}
+          </span>
+          <span class="breadcrumb__current" itemprop="name" aria-current="page">{{ collection.title }}</span>
+          <meta itemprop="position" content="2">
+        </li>
+        
+      {%- when 'article' -%}
+        {%- comment -%} Article Breadcrumb {%- endcomment -%}
+        <li class="breadcrumb__item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <span class="breadcrumb__separator" aria-hidden="true">
+            {% render 'icon', name: 'chevron-right', size: 12 %}
+          </span>
+          <a href="{{ blog.url }}" class="breadcrumb__link" itemprop="item">
+            <span itemprop="name">{{ blog.title }}</span>
+          </a>
+          <meta itemprop="position" content="2">
+        </li>
+        <li class="breadcrumb__item breadcrumb__item--current" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <span class="breadcrumb__separator" aria-hidden="true">
+            {% render 'icon', name: 'chevron-right', size: 12 %}
+          </span>
+          <span class="breadcrumb__current" itemprop="name" aria-current="page">{{ article.title }}</span>
+          <meta itemprop="position" content="3">
+        </li>
+        
+      {%- when 'page' -%}
+        {%- comment -%} Page Breadcrumb {%- endcomment -%}
+        <li class="breadcrumb__item breadcrumb__item--current" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+          <span class="breadcrumb__separator" aria-hidden="true">
+            {% render 'icon', name: 'chevron-right', size: 12 %}
+          </span>
+          <span class="breadcrumb__current" itemprop="name" aria-current="page">{{ page.title }}</span>
+          <meta itemprop="position" content="2">
+        </li>
+    {%- endcase -%}
+  </ol>
+</nav>
+
+<style>
+  .breadcrumb {
+    margin-bottom: var(--spacing-6);
+  }
+  
+  .breadcrumb__list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-1);
+  }
+  
+  .breadcrumb__item {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-1);
+  }
+  
+  .breadcrumb__separator {
+    color: var(--color-gray-400);
+    display: flex;
+    align-items: center;
+  }
+  
+  .breadcrumb__link {
+    font-size: var(--font-size-sm);
+    color: var(--color-gray-500);
+    transition: color var(--transition-fast);
+  }
+  
+  .breadcrumb__link:hover {
+    color: var(--color-primary);
+  }
+  
+  .breadcrumb__current {
+    font-size: var(--font-size-sm);
+    color: var(--color-secondary);
+    font-weight: 500;
+  }
+</style>

@@ -1,0 +1,134 @@
+{%- comment -%}
+  Main Page Section
+  Renders the content of a custom page.
+{%- endcomment -%}
+
+{%- liquid
+  assign show_title = section.settings.show_title
+  assign content_width = section.settings.content_width
+-%}
+
+<section class="main-page section">
+  <div class="container{% if content_width == 'narrow' %} container--narrow{% endif %}">
+    {%- if show_title -%}
+      <header class="main-page__header">
+        <h1 class="main-page__title">{{ page.title }}</h1>
+      </header>
+    {%- endif -%}
+    
+    <div class="main-page__content rte">
+      {{ page.content }}
+    </div>
+  </div>
+</section>
+
+<style>
+  .main-page__header {
+    text-align: center;
+    margin-bottom: var(--spacing-8);
+  }
+  
+  .main-page__title {
+    margin-bottom: 0;
+  }
+  
+  .main-page__content {
+    max-width: 100%;
+  }
+  
+  .main-page__content img {
+    border-radius: var(--border-radius-md);
+  }
+  
+  .main-page__content h2,
+  .main-page__content h3,
+  .main-page__content h4 {
+    margin-top: var(--spacing-8);
+    margin-bottom: var(--spacing-4);
+  }
+  
+  .main-page__content ul,
+  .main-page__content ol {
+    margin-bottom: var(--spacing-4);
+    padding-left: var(--spacing-6);
+  }
+  
+  .main-page__content ul {
+    list-style: disc;
+  }
+  
+  .main-page__content ol {
+    list-style: decimal;
+  }
+  
+  .main-page__content li {
+    margin-bottom: var(--spacing-2);
+  }
+  
+  .main-page__content blockquote {
+    margin: var(--spacing-6) 0;
+    padding: var(--spacing-4) var(--spacing-6);
+    border-left: 4px solid var(--color-primary);
+    background-color: var(--color-gray-100);
+    font-style: italic;
+    color: var(--color-gray-600);
+  }
+  
+  .main-page__content a {
+    color: var(--color-primary);
+    text-decoration: underline;
+  }
+  
+  .main-page__content a:hover {
+    color: var(--color-secondary);
+  }
+  
+  .main-page__content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: var(--spacing-6);
+  }
+  
+  .main-page__content th,
+  .main-page__content td {
+    padding: var(--spacing-3) var(--spacing-4);
+    border: 1px solid var(--color-gray-200);
+    text-align: left;
+  }
+  
+  .main-page__content th {
+    background-color: var(--color-gray-100);
+    font-weight: 600;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Main Page",
+  "tag": "section",
+  "class": "main-page-section",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_title",
+      "label": "Show page title",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "content_width",
+      "label": "Content width",
+      "options": [
+        { "value": "narrow", "label": "Narrow" },
+        { "value": "full", "label": "Full width" }
+      ],
+      "default": "narrow"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Main Page"
+    }
+  ]
+}
+{% endschema %}

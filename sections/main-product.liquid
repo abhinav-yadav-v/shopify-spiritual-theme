@@ -10,6 +10,9 @@
 
 <section class="main-product section" data-product-section>
   <div class="container">
+    {%- comment -%} Breadcrumb {%- endcomment -%}
+    {% render 'breadcrumb', type: 'product', product: product, collection: collection %}
+    
     <div class="main-product__wrapper">
       {%- comment -%} Product Gallery {%- endcomment -%}
       <div class="main-product__gallery" data-product-gallery>

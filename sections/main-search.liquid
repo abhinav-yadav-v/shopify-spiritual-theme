@@ -1,0 +1,455 @@
+{%- comment -%}
+  Main Search Section
+  Renders search results page with form and results.
+{%- endcomment -%}
+
+{%- liquid
+  assign show_products = section.settings.show_products
+  assign show_pages = section.settings.show_pages
+  assign show_articles = section.settings.show_articles
+  assign results_per_page = section.settings.results_per_page | default: 12
+-%}
+
+<section class="main-search section">
+  <div class="container">
+    <header class="main-search__header">
+      <h1 class="main-search__title">{{ 'search.title' | t }}</h1>
+      
+      {%- comment -%} Search Form {%- endcomment -%}
+      <form action="{{ routes.search_url }}" method="get" role="search" class="main-search__form">
+        <div class="main-search__input-wrapper">
+          <label for="SearchInput" class="visually-hidden">{{ 'search.placeholder' | t }}</label>
+          <input
+            type="search"
+            id="SearchInput"
+            name="q"
+            class="form-input main-search__input"
+            value="{{ search.terms | escape }}"
+            placeholder="{{ 'search.placeholder' | t }}"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+          >
+          <button type="submit" class="btn btn--primary main-search__submit">
+            {% render 'icon', name: 'search', size: 20 %}
+            <span>{{ 'search.submit' | t }}</span>
+          </button>
+        </div>
+        
+        {%- comment -%} Search Type Filter {%- endcomment -%}
+        {%- if show_products or show_pages or show_articles -%}
+          <input type="hidden" name="type" value="{%- if show_products -%}product{%- endif -%}{%- if show_pages -%},page{%- endif -%}{%- if show_articles -%},article{%- endif -%}">
+        {%- endif -%}
+      </form>
+    </header>
+    
+    {%- if search.performed -%}
+      {%- comment -%} Results Count {%- endcomment -%}
+      <div class="main-search__results-info">
+        {%- if search.results_count > 0 -%}
+          <p class="main-search__results-count">
+            {{ 'search.results_count' | t: count: search.results_count, terms: search.terms }}
+          </p>
+        {%- else -%}
+          <p class="main-search__no-results">
+            {{ 'search.no_results' | t: terms: search.terms }}
+          </p>
+        {%- endif -%}
+      </div>
+      
+      {%- paginate search.results by results_per_page -%}
+        {%- if search.results_count > 0 -%}
+          {%- comment -%} Product Results {%- endcomment -%}
+          {%- assign product_results = search.results | where: 'object_type', 'product' -%}
+          {%- if product_results.size > 0 and show_products -%}
+            <div class="main-search__section">
+              <h2 class="main-search__section-title">{{ 'search.products' | t }}</h2>
+              <div class="main-search__products grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                {%- for product in product_results -%}
+                  <div class="main-search__product-item">
+                    {% render 'product-card', product: product %}
+                  </div>
+                {%- endfor -%}
+              </div>
+            </div>
+          {%- endif -%}
+          
+          {%- comment -%} Page and Article Results {%- endcomment -%}
+          {%- assign page_results = search.results | where: 'object_type', 'page' -%}
+          {%- assign article_results = search.results | where: 'object_type', 'article' -%}
+          
+          {%- if page_results.size > 0 and show_pages -%}
+            <div class="main-search__section">
+              <h2 class="main-search__section-title">{{ 'search.pages' | t }}</h2>
+              <ul class="main-search__pages-list">
+                {%- for page in page_results -%}
+                  <li class="main-search__page-item">
+                    <a href="{{ page.url }}" class="main-search__page-link">
+                      <h3 class="main-search__page-title">{{ page.title }}</h3>
+                      {%- if page.content != blank -%}
+                        <p class="main-search__page-excerpt">
+                          {{ page.content | strip_html | truncate: 150 }}
+                        </p>
+                      {%- endif -%}
+                    </a>
+                  </li>
+                {%- endfor -%}
+              </ul>
+            </div>
+          {%- endif -%}
+          
+          {%- if article_results.size > 0 and show_articles -%}
+            <div class="main-search__section">
+              <h2 class="main-search__section-title">{{ 'search.articles' | t }}</h2>
+              <ul class="main-search__articles-list">
+                {%- for article in article_results -%}
+                  <li class="main-search__article-item">
+                    <a href="{{ article.url }}" class="main-search__article-link">
+                      {%- if article.image -%}
+                        <div class="main-search__article-image">
+                          <img
+                            src="{{ article.image | image_url: width: 200 }}"
+                            alt="{{ article.image.alt | default: article.title | escape }}"
+                            loading="lazy"
+                          >
+                        </div>
+                      {%- endif -%}
+                      <div class="main-search__article-content">
+                        <h3 class="main-search__article-title">{{ article.title }}</h3>
+                        <p class="main-search__article-meta">
+                          {{ article.published_at | date: format: 'abbreviated_date' }}
+                        </p>
+                        {%- if article.excerpt_or_content != blank -%}
+                          <p class="main-search__article-excerpt">
+                            {{ article.excerpt_or_content | strip_html | truncate: 150 }}
+                          </p>
+                        {%- endif -%}
+                      </div>
+                    </a>
+                  </li>
+                {%- endfor -%}
+              </ul>
+            </div>
+          {%- endif -%}
+          
+          {%- comment -%} Pagination {%- endcomment -%}
+          {%- if paginate.pages > 1 -%}
+            <nav class="main-search__pagination pagination" aria-label="{{ 'search.pagination' | t }}">
+              <ul class="pagination__list">
+                {%- if paginate.previous -%}
+                  <li class="pagination__item">
+                    <a href="{{ paginate.previous.url }}" class="pagination__link pagination__link--prev" aria-label="{{ 'search.previous_page' | t }}">
+                      {% render 'icon', name: 'chevron-left', size: 16 %}
+                      {{ 'search.previous' | t }}
+                    </a>
+                  </li>
+                {%- endif -%}
+                
+                {%- for part in paginate.parts -%}
+                  <li class="pagination__item">
+                    {%- if part.is_link -%}
+                      <a href="{{ part.url }}" class="pagination__link">{{ part.title }}</a>
+                    {%- else -%}
+                      {%- if part.title == paginate.current_page -%}
+                        <span class="pagination__link pagination__link--current" aria-current="page">{{ part.title }}</span>
+                      {%- else -%}
+                        <span class="pagination__link pagination__link--ellipsis">{{ part.title }}</span>
+                      {%- endif -%}
+                    {%- endif -%}
+                  </li>
+                {%- endfor -%}
+                
+                {%- if paginate.next -%}
+                  <li class="pagination__item">
+                    <a href="{{ paginate.next.url }}" class="pagination__link pagination__link--next" aria-label="{{ 'search.next_page' | t }}">
+                      {{ 'search.next' | t }}
+                      {% render 'icon', name: 'chevron-right', size: 16 %}
+                    </a>
+                  </li>
+                {%- endif -%}
+              </ul>
+            </nav>
+          {%- endif -%}
+        {%- endif -%}
+      {%- endpaginate -%}
+      
+      {%- comment -%} No Results State {%- endcomment -%}
+      {%- if search.results_count == 0 -%}
+        <div class="main-search__empty">
+          <p>{{ 'search.suggestions' | t }}</p>
+          <ul>
+            <li>{{ 'search.suggestion_1' | t }}</li>
+            <li>{{ 'search.suggestion_2' | t }}</li>
+            <li>{{ 'search.suggestion_3' | t }}</li>
+          </ul>
+          <a href="{{ routes.all_products_collection_url }}" class="btn btn--primary">
+            {{ 'search.browse_products' | t }}
+          </a>
+        </div>
+      {%- endif -%}
+    {%- else -%}
+      <div class="main-search__prompt">
+        <p>{{ 'search.prompt' | t }}</p>
+      </div>
+    {%- endif -%}
+  </div>
+</section>
+
+<style>
+  .main-search__header {
+    text-align: center;
+    margin-bottom: var(--spacing-10);
+  }
+  
+  .main-search__title {
+    margin-bottom: var(--spacing-6);
+  }
+  
+  .main-search__form {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .main-search__input-wrapper {
+    display: flex;
+    gap: var(--spacing-3);
+  }
+  
+  .main-search__input {
+    flex: 1;
+    font-size: var(--font-size-lg);
+    padding: var(--spacing-4);
+  }
+  
+  .main-search__submit {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+  }
+  
+  @media screen and (max-width: 767px) {
+    .main-search__input-wrapper {
+      flex-direction: column;
+    }
+    
+    .main-search__submit {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+  
+  .main-search__results-info {
+    margin-bottom: var(--spacing-8);
+  }
+  
+  .main-search__results-count {
+    font-size: var(--font-size-lg);
+    color: var(--color-gray-600);
+  }
+  
+  .main-search__no-results {
+    font-size: var(--font-size-lg);
+    color: var(--color-gray-600);
+    text-align: center;
+  }
+  
+  .main-search__section {
+    margin-bottom: var(--spacing-12);
+  }
+  
+  .main-search__section-title {
+    font-size: var(--font-size-2xl);
+    margin-bottom: var(--spacing-6);
+    padding-bottom: var(--spacing-3);
+    border-bottom: 2px solid var(--color-gray-200);
+  }
+  
+  .main-search__products {
+    gap: var(--spacing-4);
+  }
+  
+  /* Page Results */
+  .main-search__pages-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+  }
+  
+  .main-search__page-link {
+    display: block;
+    padding: var(--spacing-4);
+    background-color: var(--color-white);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+  }
+  
+  .main-search__page-link:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+  
+  .main-search__page-title {
+    font-size: var(--font-size-lg);
+    color: var(--color-secondary);
+    margin-bottom: var(--spacing-2);
+  }
+  
+  .main-search__page-link:hover .main-search__page-title {
+    color: var(--color-primary);
+  }
+  
+  .main-search__page-excerpt {
+    font-size: var(--font-size-sm);
+    color: var(--color-gray-600);
+    margin: 0;
+  }
+  
+  /* Article Results */
+  .main-search__articles-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+  }
+  
+  .main-search__article-link {
+    display: flex;
+    gap: var(--spacing-4);
+    padding: var(--spacing-4);
+    background-color: var(--color-white);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow-sm);
+    transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+  }
+  
+  .main-search__article-link:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+  }
+  
+  .main-search__article-image {
+    flex-shrink: 0;
+    width: 120px;
+    height: 80px;
+    border-radius: var(--border-radius-sm);
+    overflow: hidden;
+  }
+  
+  .main-search__article-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .main-search__article-content {
+    flex: 1;
+  }
+  
+  .main-search__article-title {
+    font-size: var(--font-size-lg);
+    color: var(--color-secondary);
+    margin-bottom: var(--spacing-1);
+  }
+  
+  .main-search__article-link:hover .main-search__article-title {
+    color: var(--color-primary);
+  }
+  
+  .main-search__article-meta {
+    font-size: var(--font-size-xs);
+    color: var(--color-gray-500);
+    margin-bottom: var(--spacing-2);
+  }
+  
+  .main-search__article-excerpt {
+    font-size: var(--font-size-sm);
+    color: var(--color-gray-600);
+    margin: 0;
+  }
+  
+  @media screen and (max-width: 767px) {
+    .main-search__article-image {
+      width: 80px;
+      height: 60px;
+    }
+  }
+  
+  /* Empty State */
+  .main-search__empty {
+    text-align: center;
+    padding: var(--spacing-12) var(--spacing-4);
+  }
+  
+  .main-search__empty p {
+    font-size: var(--font-size-lg);
+    color: var(--color-gray-600);
+    margin-bottom: var(--spacing-4);
+  }
+  
+  .main-search__empty ul {
+    display: inline-block;
+    text-align: left;
+    margin-bottom: var(--spacing-6);
+    list-style: disc;
+    padding-left: var(--spacing-6);
+  }
+  
+  .main-search__empty li {
+    color: var(--color-gray-500);
+    margin-bottom: var(--spacing-2);
+  }
+  
+  .main-search__prompt {
+    text-align: center;
+    padding: var(--spacing-12) var(--spacing-4);
+    color: var(--color-gray-500);
+  }
+  
+  .main-search__pagination {
+    margin-top: var(--spacing-12);
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Main Search",
+  "tag": "section",
+  "class": "main-search-section",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_products",
+      "label": "Show products",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_pages",
+      "label": "Show pages",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_articles",
+      "label": "Show articles",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "results_per_page",
+      "label": "Results per page",
+      "min": 8,
+      "max": 24,
+      "step": 4,
+      "default": 12
+    }
+  ],
+  "presets": [
+    {
+      "name": "Main Search"
+    }
+  ]
+}
+{% endschema %}

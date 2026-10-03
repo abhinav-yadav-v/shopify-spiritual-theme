@@ -1,0 +1,260 @@
+{%- comment -%}
+  Header Section
+  Main site header with logo, navigation, search, account and cart icons.
+{%- endcomment -%}
+
+{%- liquid
+  assign logo_width = section.settings.logo_width | default: 120
+-%}
+
+<header 
+  class="site-header{% if section.settings.sticky_header %} site-header--sticky{% endif %}"
+  data-sticky-header="{{ section.settings.sticky_header }}"
+  role="banner"
+>
+  <div class="site-header__inner container">
+    {%- comment -%} Mobile menu toggle {%- endcomment -%}
+    <button 
+      type="button" 
+      class="site-header__menu-toggle hide-desktop"
+      data-mobile-menu-toggle
+      aria-label="{{ 'general.navigation.menu' | t | default: 'Menu' }}"
+      aria-expanded="false"
+      aria-controls="MobileMenu"
+    >
+      {% render 'icon', name: 'menu', size: 24 %}
+    </button>
+
+    {%- comment -%} Logo {%- endcomment -%}
+    <div class="site-header__logo">
+      <a href="{{ routes.root_url }}" class="site-header__logo-link" aria-label="{{ shop.name }}">
+        {%- if section.settings.logo != blank -%}
+          <img 
+            src="{{ section.settings.logo | image_url: width: logo_width | times: 2 }}"
+            alt="{{ section.settings.logo.alt | default: shop.name }}"
+            width="{{ logo_width }}"
+            height="{{ logo_width | divided_by: section.settings.logo.aspect_ratio | round }}"
+            loading="eager"
+            class="site-header__logo-image"
+          >
+        {%- else -%}
+          <span class="site-header__logo-text">{{ shop.name }}</span>
+        {%- endif -%}
+      </a>
+    </div>
+
+    {%- comment -%} Main navigation (desktop) {%- endcomment -%}
+    <nav class="site-header__nav hide-mobile" role="navigation" aria-label="{{ 'general.navigation.main' | t | default: 'Main navigation' }}">
+      <ul class="site-header__nav-list" role="list">
+        {%- for link in linklists['main-menu'].links -%}
+          <li class="site-header__nav-item{% if link.links.size > 0 %} has-dropdown{% endif %}">
+            {%- if link.links.size > 0 -%}
+              <button 
+                type="button"
+                class="site-header__nav-link site-header__nav-link--parent"
+                aria-expanded="false"
+                aria-controls="NavDropdown-{{ forloop.index }}"
+              >
+                {{ link.title }}
+                {% render 'icon', name: 'chevron-down', size: 12 %}
+              </button>
+              
+              {%- if section.settings.menu_style == 'mega' -%}
+                {%- comment -%} Mega menu {%- endcomment -%}
+                <div class="site-header__mega-menu" id="NavDropdown-{{ forloop.index }}" aria-hidden="true">
+                  <div class="site-header__mega-menu-inner container">
+                    {%- for child_link in link.links -%}
+                      <div class="site-header__mega-column">
+                        <a href="{{ child_link.url }}" class="site-header__mega-title">
+                          {{ child_link.title }}
+                        </a>
+                        {%- if child_link.links.size > 0 -%}
+                          <ul class="site-header__mega-links" role="list">
+                            {%- for grandchild_link in child_link.links -%}
+                              <li>
+                                <a href="{{ grandchild_link.url }}" class="site-header__mega-link">
+                                  {{ grandchild_link.title }}
+                                </a>
+                              </li>
+                            {%- endfor -%}
+                          </ul>
+                        {%- endif -%}
+                      </div>
+                    {%- endfor -%}
+                  </div>
+                </div>
+              {%- else -%}
+                {%- comment -%} Dropdown menu {%- endcomment -%}
+                <ul class="site-header__dropdown" id="NavDropdown-{{ forloop.index }}" role="list" aria-hidden="true">
+                  {%- for child_link in link.links -%}
+                    <li class="site-header__dropdown-item{% if child_link.links.size > 0 %} has-dropdown{% endif %}">
+                      <a href="{{ child_link.url }}" class="site-header__dropdown-link">
+                        {{ child_link.title }}
+                        {%- if child_link.links.size > 0 -%}
+                          {% render 'icon', name: 'chevron-right', size: 12 %}
+                        {%- endif -%}
+                      </a>
+                      {%- if child_link.links.size > 0 -%}
+                        <ul class="site-header__dropdown site-header__dropdown--nested" role="list">
+                          {%- for grandchild_link in child_link.links -%}
+                            <li class="site-header__dropdown-item">
+                              <a href="{{ grandchild_link.url }}" class="site-header__dropdown-link">
+                                {{ grandchild_link.title }}
+                              </a>
+                            </li>
+                          {%- endfor -%}
+                        </ul>
+                      {%- endif -%}
+                    </li>
+                  {%- endfor -%}
+                </ul>
+              {%- endif -%}
+            {%- else -%}
+              <a href="{{ link.url }}" class="site-header__nav-link{% if link.active %} is-active{% endif %}">
+                {{ link.title }}
+              </a>
+            {%- endif -%}
+          </li>
+        {%- endfor -%}
+      </ul>
+    </nav>
+
+    {%- comment -%} Header actions (search, account, cart) {%- endcomment -%}
+    <div class="site-header__actions">
+      {%- if section.settings.show_search -%}
+        <button 
+          type="button" 
+          class="site-header__action-btn"
+          data-search-toggle
+          aria-label="{{ 'general.search.search' | t | default: 'Search' }}"
+        >
+          {% render 'icon', name: 'search', size: 22 %}
+        </button>
+      {%- endif -%}
+
+      {%- if section.settings.show_account and shop.customer_accounts_enabled -%}
+        <a 
+          href="{%- if customer -%}{{ routes.account_url }}{%- else -%}{{ routes.account_login_url }}{%- endif -%}" 
+          class="site-header__action-btn"
+          aria-label="{{ 'general.account.account' | t | default: 'Account' }}"
+        >
+          {% render 'icon', name: 'user', size: 22 %}
+        </a>
+      {%- endif -%}
+
+      <a 
+        href="{{ routes.cart_url }}" 
+        class="site-header__action-btn site-header__cart-btn"
+        aria-label="{{ 'general.cart.cart' | t | default: 'Cart' }}"
+      >
+        {% render 'icon', name: 'cart', size: 22 %}
+        <span 
+          class="site-header__cart-count"
+          data-cart-count
+          {% if cart.item_count == 0 %}hidden{% endif %}
+        >
+          {{ cart.item_count }}
+        </span>
+      </a>
+    </div>
+  </div>
+
+  {%- comment -%} Search drawer {%- endcomment -%}
+  {%- if section.settings.show_search -%}
+    <div class="search-drawer" data-search-drawer aria-hidden="true">
+      <div class="search-drawer__inner container">
+        <form action="{{ routes.search_url }}" method="get" class="search-drawer__form" role="search">
+          <input type="hidden" name="type" value="product">
+          <label for="SearchDrawerInput" class="visually-hidden">{{ 'general.search.search' | t | default: 'Search' }}</label>
+          <input 
+            type="search" 
+            name="q" 
+            id="SearchDrawerInput"
+            class="search-drawer__input form-input"
+            placeholder="{{ 'general.search.placeholder' | t | default: 'Search products...' }}"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+          >
+          <button type="submit" class="search-drawer__submit btn btn--primary" aria-label="{{ 'general.search.search' | t | default: 'Search' }}">
+            {% render 'icon', name: 'search', size: 20 %}
+          </button>
+          <button type="button" class="search-drawer__close" data-search-close aria-label="{{ 'general.close' | t | default: 'Close' }}">
+            {% render 'icon', name: 'close', size: 20 %}
+          </button>
+        </form>
+      </div>
+    </div>
+  {%- endif -%}
+</header>
+
+{%- comment -%} Mobile overlay {%- endcomment -%}
+<div class="overlay" data-mobile-overlay aria-hidden="true"></div>
+
+{% schema %}
+{
+  "name": "Header",
+  "tag": "section",
+  "class": "section-header",
+  "settings": [
+    {
+      "type": "image_picker",
+      "id": "logo",
+      "label": "Logo image"
+    },
+    {
+      "type": "range",
+      "id": "logo_width",
+      "label": "Logo width",
+      "min": 50,
+      "max": 250,
+      "step": 10,
+      "default": 120,
+      "unit": "px"
+    },
+    {
+      "type": "checkbox",
+      "id": "sticky_header",
+      "label": "Enable sticky header",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_search",
+      "label": "Show search icon",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_account",
+      "label": "Show account icon",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "menu_style",
+      "label": "Menu style",
+      "options": [
+        {
+          "value": "dropdown",
+          "label": "Dropdown"
+        },
+        {
+          "value": "mega",
+          "label": "Mega menu"
+        }
+      ],
+      "default": "dropdown"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Header"
+    }
+  ],
+  "enabled_on": {
+    "groups": ["header"]
+  }
+}
+{% endschema %}

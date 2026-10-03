@@ -1,0 +1,200 @@
+{%- comment -%}
+  Mobile Menu Section
+  Drawer overlay for mobile navigation with search, navigation links, and account access.
+{%- endcomment -%}
+
+<div 
+  class="mobile-menu mobile-menu--{{ section.settings.animation_style }}"
+  id="MobileMenu"
+  data-mobile-menu
+  aria-hidden="true"
+  aria-label="{{ 'general.navigation.menu' | t | default: 'Menu' }}"
+  style="
+    --mobile-menu-bg: {{ section.settings.background_color }};
+    --mobile-menu-text: {{ section.settings.text_color }};
+  "
+>
+  <div class="mobile-menu__inner">
+    {%- comment -%} Header with close button {%- endcomment -%}
+    <div class="mobile-menu__header">
+      <span class="mobile-menu__title">{{ 'general.navigation.menu' | t | default: 'Menu' }}</span>
+      <button 
+        type="button" 
+        class="mobile-menu__close"
+        data-mobile-menu-close
+        aria-label="{{ 'general.close' | t | default: 'Close menu' }}"
+      >
+        {% render 'icon', name: 'close', size: 24 %}
+      </button>
+    </div>
+
+    {%- comment -%} Search form {%- endcomment -%}
+    <div class="mobile-menu__search">
+      <form action="{{ routes.search_url }}" method="get" class="mobile-menu__search-form" role="search">
+        <input type="hidden" name="type" value="product">
+        <label for="MobileMenuSearch" class="visually-hidden">{{ 'general.search.search' | t | default: 'Search' }}</label>
+        <input 
+          type="search" 
+          name="q" 
+          id="MobileMenuSearch"
+          class="mobile-menu__search-input form-input"
+          placeholder="{{ 'general.search.placeholder' | t | default: 'Search products...' }}"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+        >
+        <button type="submit" class="mobile-menu__search-btn" aria-label="{{ 'general.search.search' | t | default: 'Search' }}">
+          {% render 'icon', name: 'search', size: 20 %}
+        </button>
+      </form>
+    </div>
+
+    {%- comment -%} Navigation links {%- endcomment -%}
+    <nav class="mobile-menu__nav" role="navigation" aria-label="{{ 'general.navigation.main' | t | default: 'Main navigation' }}">
+      <ul class="mobile-menu__nav-list" role="list">
+        {%- for link in linklists['main-menu'].links -%}
+          <li class="mobile-menu__nav-item{% if link.links.size > 0 %} has-children{% endif %}">
+            {%- if link.links.size > 0 -%}
+              <button 
+                type="button"
+                class="mobile-menu__nav-link mobile-menu__nav-link--parent"
+                aria-expanded="false"
+                aria-controls="MobileSubmenu-{{ forloop.index }}"
+                data-mobile-submenu-toggle
+              >
+                {{ link.title }}
+                <span class="mobile-menu__nav-icon">
+                  {% render 'icon', name: 'chevron-down', size: 16 %}
+                </span>
+              </button>
+              <ul 
+                class="mobile-menu__submenu" 
+                id="MobileSubmenu-{{ forloop.index }}" 
+                role="list"
+                hidden
+              >
+                {%- comment -%} Link to parent page {%- endcomment -%}
+                {%- if link.url != '#' -%}
+                  <li class="mobile-menu__submenu-item">
+                    <a href="{{ link.url }}" class="mobile-menu__submenu-link mobile-menu__submenu-link--all">
+                      {{ 'general.navigation.view_all' | t | default: 'View all' }} {{ link.title }}
+                    </a>
+                  </li>
+                {%- endif -%}
+                {%- for child_link in link.links -%}
+                  <li class="mobile-menu__submenu-item{% if child_link.links.size > 0 %} has-children{% endif %}">
+                    {%- if child_link.links.size > 0 -%}
+                      <button 
+                        type="button"
+                        class="mobile-menu__submenu-link mobile-menu__submenu-link--parent"
+                        aria-expanded="false"
+                        aria-controls="MobileSubmenu-{{ forloop.index }}-{{ forloop.index }}"
+                        data-mobile-submenu-toggle
+                      >
+                        {{ child_link.title }}
+                        <span class="mobile-menu__nav-icon">
+                          {% render 'icon', name: 'chevron-down', size: 14 %}
+                        </span>
+                      </button>
+                      <ul 
+                        class="mobile-menu__submenu mobile-menu__submenu--nested" 
+                        id="MobileSubmenu-{{ forloop.index }}-{{ forloop.index }}"
+                        role="list"
+                        hidden
+                      >
+                        {%- for grandchild_link in child_link.links -%}
+                          <li class="mobile-menu__submenu-item">
+                            <a href="{{ grandchild_link.url }}" class="mobile-menu__submenu-link">
+                              {{ grandchild_link.title }}
+                            </a>
+                          </li>
+                        {%- endfor -%}
+                      </ul>
+                    {%- else -%}
+                      <a href="{{ child_link.url }}" class="mobile-menu__submenu-link">
+                        {{ child_link.title }}
+                      </a>
+                    {%- endif -%}
+                  </li>
+                {%- endfor -%}
+              </ul>
+            {%- else -%}
+              <a href="{{ link.url }}" class="mobile-menu__nav-link{% if link.active %} is-active{% endif %}">
+                {{ link.title }}
+              </a>
+            {%- endif -%}
+          </li>
+        {%- endfor -%}
+      </ul>
+    </nav>
+
+    {%- comment -%} Footer links (account, cart) {%- endcomment -%}
+    <div class="mobile-menu__footer">
+      {%- if shop.customer_accounts_enabled -%}
+        <a href="{%- if customer -%}{{ routes.account_url }}{%- else -%}{{ routes.account_login_url }}{%- endif -%}" class="mobile-menu__footer-link">
+          {% render 'icon', name: 'user', size: 20 %}
+          <span>
+            {%- if customer -%}
+              {{ 'general.account.account' | t | default: 'My Account' }}
+            {%- else -%}
+              {{ 'general.account.sign_in' | t | default: 'Sign In' }}
+            {%- endif -%}
+          </span>
+        </a>
+      {%- endif -%}
+      
+      <a href="{{ routes.cart_url }}" class="mobile-menu__footer-link">
+        {% render 'icon', name: 'cart', size: 20 %}
+        <span>{{ 'general.cart.cart' | t | default: 'Cart' }} ({{ cart.item_count }})</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Mobile menu",
+  "tag": "section",
+  "class": "section-mobile-menu",
+  "settings": [
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#333333"
+    },
+    {
+      "type": "select",
+      "id": "animation_style",
+      "label": "Animation style",
+      "options": [
+        {
+          "value": "slide-left",
+          "label": "Slide from left"
+        },
+        {
+          "value": "slide-right",
+          "label": "Slide from right"
+        },
+        {
+          "value": "fade",
+          "label": "Fade in"
+        }
+      ],
+      "default": "slide-left"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Mobile menu"
+    }
+  ]
+}
+{% endschema %}

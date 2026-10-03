@@ -1,0 +1,268 @@
+{%- comment -%}
+  Footer Section
+  Multi-column footer with menu columns, text columns, newsletter signup,
+  social icons, and payment icons.
+{%- endcomment -%}
+
+<footer 
+  class="site-footer"
+  role="contentinfo"
+  style="
+    --footer-bg: {{ section.settings.background_color }};
+    --footer-text: {{ section.settings.text_color }};
+  "
+>
+  <div class="site-footer__inner container">
+    {%- comment -%} Footer columns {%- endcomment -%}
+    <div class="site-footer__columns">
+      {%- for block in section.blocks -%}
+        <div class="site-footer__column" {{ block.shopify_attributes }}>
+          {%- case block.type -%}
+            {%- when 'menu_column' -%}
+              {%- if block.settings.title != blank -%}
+                <h3 class="site-footer__column-title">{{ block.settings.title }}</h3>
+              {%- endif -%}
+              {%- if block.settings.menu != blank -%}
+                <nav aria-label="{{ block.settings.title | escape }}">
+                  <ul class="site-footer__menu" role="list">
+                    {%- for link in linklists[block.settings.menu].links -%}
+                      <li class="site-footer__menu-item">
+                        <a href="{{ link.url }}" class="site-footer__menu-link">
+                          {{ link.title }}
+                        </a>
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                </nav>
+              {%- endif -%}
+
+            {%- when 'text_column' -%}
+              {%- if block.settings.title != blank -%}
+                <h3 class="site-footer__column-title">{{ block.settings.title }}</h3>
+              {%- endif -%}
+              {%- if block.settings.content != blank -%}
+                <div class="site-footer__text rte">
+                  {{ block.settings.content }}
+                </div>
+              {%- endif -%}
+
+            {%- when 'newsletter' -%}
+              {%- if block.settings.title != blank -%}
+                <h3 class="site-footer__column-title">{{ block.settings.title }}</h3>
+              {%- endif -%}
+              {%- if block.settings.description != blank -%}
+                <p class="site-footer__newsletter-desc">{{ block.settings.description }}</p>
+              {%- endif -%}
+              
+              {%- form 'customer', class: 'site-footer__newsletter-form' -%}
+                <input type="hidden" name="contact[tags]" value="newsletter">
+                
+                {%- if form.errors -%}
+                  <div class="form-error" role="alert">
+                    {{ form.errors | default_errors }}
+                  </div>
+                {%- endif -%}
+                
+                {%- if form.posted_successfully? -%}
+                  <p class="site-footer__newsletter-success">
+                    {{ 'general.newsletter.success' | t | default: 'Thank you for subscribing!' }}
+                  </p>
+                {%- else -%}
+                  <div class="site-footer__newsletter-fields">
+                    <label for="FooterNewsletterEmail-{{ block.id }}" class="visually-hidden">
+                      {{ 'general.newsletter.email' | t | default: 'Email address' }}
+                    </label>
+                    <input 
+                      type="email" 
+                      name="contact[email]" 
+                      id="FooterNewsletterEmail-{{ block.id }}"
+                      class="site-footer__newsletter-input form-input"
+                      placeholder="{{ block.settings.placeholder_text | default: 'Enter your email' }}"
+                      autocomplete="email"
+                      required
+                      aria-required="true"
+                    >
+                    <button type="submit" class="site-footer__newsletter-btn btn btn--primary">
+                      {{ 'general.newsletter.subscribe' | t | default: 'Subscribe' }}
+                    </button>
+                  </div>
+                {%- endif -%}
+              {%- endform -%}
+
+          {%- endcase -%}
+        </div>
+      {%- endfor -%}
+    </div>
+
+    {%- comment -%} Social & Payment icons {%- endcomment -%}
+    <div class="site-footer__bottom">
+      {%- if section.settings.show_social_icons -%}
+        <div class="site-footer__social">
+          {% render 'social-icons', class: 'social-icons--light' %}
+        </div>
+      {%- endif -%}
+
+      {%- if section.settings.show_payment_icons -%}
+        <div class="site-footer__payments">
+          {% render 'payment-icons', class: 'payment-icons--centered' %}
+        </div>
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} Copyright {%- endcomment -%}
+    <div class="site-footer__copyright">
+      <p class="site-footer__copyright-text">
+        {%- if section.settings.copyright_text != blank -%}
+          {{ section.settings.copyright_text }}
+        {%- else -%}
+          &copy; {{ 'now' | date: '%Y' }} {{ shop.name }}. {{ 'general.footer.all_rights_reserved' | t | default: 'All rights reserved.' }}
+        {%- endif -%}
+      </p>
+      <p class="site-footer__powered">
+        {{ powered_by_link }}
+      </p>
+    </div>
+  </div>
+</footer>
+
+{% schema %}
+{
+  "name": "Footer",
+  "tag": "section",
+  "class": "section-footer",
+  "settings": [
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color",
+      "default": "#8B0000"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_social_icons",
+      "label": "Show social media icons",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_payment_icons",
+      "label": "Show payment icons",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "copyright_text",
+      "label": "Copyright text",
+      "info": "Leave blank to use default"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "menu_column",
+      "name": "Menu column",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Quick Links"
+        },
+        {
+          "type": "link_list",
+          "id": "menu",
+          "label": "Menu",
+          "default": "footer"
+        }
+      ]
+    },
+    {
+      "type": "text_column",
+      "name": "Text column",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "About Us"
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "Content",
+          "default": "<p>Your trusted destination for spiritual and religious products. We bring the essence of Indian culture and traditions to your doorstep.</p>"
+        }
+      ]
+    },
+    {
+      "type": "newsletter",
+      "name": "Newsletter",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Title",
+          "default": "Newsletter"
+        },
+        {
+          "type": "text",
+          "id": "description",
+          "label": "Description",
+          "default": "Subscribe to receive updates, access to exclusive deals, and more."
+        },
+        {
+          "type": "text",
+          "id": "placeholder_text",
+          "label": "Input placeholder",
+          "default": "Enter your email"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Footer",
+      "blocks": [
+        {
+          "type": "text_column",
+          "settings": {
+            "title": "About Us",
+            "content": "<p>Your trusted destination for spiritual and religious products. We bring the essence of Indian culture and traditions to your doorstep.</p>"
+          }
+        },
+        {
+          "type": "menu_column",
+          "settings": {
+            "title": "Quick Links",
+            "menu": "main-menu"
+          }
+        },
+        {
+          "type": "menu_column",
+          "settings": {
+            "title": "Customer Service",
+            "menu": "footer"
+          }
+        },
+        {
+          "type": "newsletter",
+          "settings": {
+            "title": "Newsletter",
+            "description": "Subscribe to receive updates, access to exclusive deals, and more.",
+            "placeholder_text": "Enter your email"
+          }
+        }
+      ]
+    }
+  ],
+  "enabled_on": {
+    "groups": ["footer"]
+  }
+}
+{% endschema %}

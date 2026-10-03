@@ -94,7 +94,8 @@
       toggle: '[data-mobile-menu-toggle]',
       menu: '[data-mobile-menu]',
       close: '[data-mobile-menu-close]',
-      overlay: '[data-mobile-overlay]'
+      overlay: '[data-mobile-overlay]',
+      submenuToggle: '[data-mobile-submenu-toggle]'
     },
 
     init() {
@@ -120,6 +121,28 @@
         if (e.key === 'Escape' && this.isOpen()) {
           this.close();
         }
+      });
+
+      // Initialize submenu toggles
+      this.initSubmenus();
+    },
+
+    initSubmenus() {
+      $$(this.selectors.submenuToggle).forEach(toggle => {
+        toggle.addEventListener('click', (e) => {
+          e.preventDefault();
+          const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+          const submenuId = toggle.getAttribute('aria-controls');
+          const submenu = document.getElementById(submenuId);
+          
+          if (isExpanded) {
+            toggle.setAttribute('aria-expanded', 'false');
+            if (submenu) submenu.hidden = true;
+          } else {
+            toggle.setAttribute('aria-expanded', 'true');
+            if (submenu) submenu.hidden = false;
+          }
+        });
       });
     },
 
@@ -185,7 +208,7 @@
     
     init() {
       const header = $(this.selectors.header);
-      if (!header) return;
+      if (!header || header.dataset.stickyHeader !== 'true') return;
       
       this.header = header;
       this.headerHeight = header.offsetHeight;
@@ -213,6 +236,144 @@
       }
       
       this.lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+    }
+  };
+
+  // ============================================
+  // Search Drawer
+  // ============================================
+
+  const SearchDrawer = {
+    selectors: {
+      toggle: '[data-search-toggle]',
+      drawer: '[data-search-drawer]',
+      close: '[data-search-close]',
+      input: '[data-search-drawer] input[type="search"]'
+    },
+
+    init() {
+      const toggleBtn = $(this.selectors.toggle);
+      const drawer = $(this.selectors.drawer);
+      
+      if (!toggleBtn || !drawer) return;
+
+      this.drawer = drawer;
+
+      toggleBtn.addEventListener('click', () => this.toggle());
+      
+      const closeBtn = $(this.selectors.close);
+      if (closeBtn) {
+        closeBtn.addEventListener('click', () => this.close());
+      }
+
+      // Close on escape key
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && this.isOpen()) {
+          this.close();
+        }
+      });
+
+      // Close when clicking outside
+      document.addEventListener('click', (e) => {
+        if (this.isOpen() && !e.target.closest('[data-search-drawer]') && !e.target.closest('[data-search-toggle]')) {
+          this.close();
+        }
+      });
+    },
+
+    isOpen() {
+      return this.drawer && this.drawer.classList.contains('is-active');
+    },
+
+    toggle() {
+      this.isOpen() ? this.close() : this.open();
+    },
+
+    open() {
+      if (this.drawer) {
+        this.drawer.classList.add('is-active');
+        this.drawer.setAttribute('aria-hidden', 'false');
+        
+        // Focus input
+        const input = $(this.selectors.input);
+        if (input) {
+          setTimeout(() => input.focus(), 100);
+        }
+      }
+    },
+
+    close() {
+      if (this.drawer) {
+        this.drawer.classList.remove('is-active');
+        this.drawer.setAttribute('aria-hidden', 'true');
+      }
+    }
+  };
+
+  // ============================================
+  // Mega Menu Interactions
+  // ============================================
+
+  const MegaMenu = {
+    selectors: {
+      navItem: '.site-header__nav-item.has-dropdown',
+      navLink: '.site-header__nav-link--parent',
+      dropdown: '.site-header__dropdown',
+      megaMenu: '.site-header__mega-menu'
+    },
+
+    init() {
+      const navItems = $$(this.selectors.navItem);
+      
+      navItems.forEach(item => {
+        const button = $(this.selectors.navLink, item);
+        const dropdown = $(this.selectors.dropdown, item) || $(this.selectors.megaMenu, item);
+        
+        if (!button || !dropdown) return;
+
+        // Keyboard accessibility
+        button.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            this.toggleDropdown(button, dropdown);
+          }
+          if (e.key === 'Escape') {
+            this.closeDropdown(button, dropdown);
+            button.focus();
+          }
+        });
+
+        // Mouse interactions - handled by CSS, but we set aria states
+        item.addEventListener('mouseenter', () => {
+          button.setAttribute('aria-expanded', 'true');
+          dropdown.setAttribute('aria-hidden', 'false');
+        });
+
+        item.addEventListener('mouseleave', () => {
+          button.setAttribute('aria-expanded', 'false');
+          dropdown.setAttribute('aria-hidden', 'true');
+        });
+      });
+    },
+
+    toggleDropdown(button, dropdown) {
+      const isExpanded = button.getAttribute('aria-expanded') === 'true';
+      
+      if (isExpanded) {
+        this.closeDropdown(button, dropdown);
+      } else {
+        this.openDropdown(button, dropdown);
+      }
+    },
+
+    openDropdown(button, dropdown) {
+      button.setAttribute('aria-expanded', 'true');
+      dropdown.setAttribute('aria-hidden', 'false');
+    },
+
+    closeDropdown(button, dropdown) {
+      button.setAttribute('aria-expanded', 'false');
+      dropdown.setAttribute('aria-hidden', 'true');
     }
   };
 
@@ -655,6 +816,8 @@
   function init() {
     MobileMenu.init();
     StickyHeader.init();
+    SearchDrawer.init();
+    MegaMenu.init();
     LazyImages.init();
     SmoothScroll.init();
     QuantitySelector.init();

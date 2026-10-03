@@ -1,0 +1,52 @@
+{
+  "sections": {
+    "main-product": {
+      "type": "main-product",
+      "settings": {
+        "enable_zoom": true,
+        "show_vendor": true,
+        "show_sku": false,
+        "show_share_buttons": true
+      }
+    },
+    "product-tabs": {
+      "type": "product-tabs",
+      "blocks": {
+        "tab-description": {
+          "type": "tab",
+          "settings": {
+            "title": "Description",
+            "use_product_description": true,
+            "content": ""
+          }
+        },
+        "tab-specifications": {
+          "type": "tab",
+          "settings": {
+            "title": "Specifications",
+            "use_product_description": false,
+            "content": "<p>Product specifications and details go here.</p><ul><li>Material: Premium quality</li><li>Dimensions: As shown</li><li>Weight: Standard</li></ul>"
+          }
+        },
+        "tab-shipping": {
+          "type": "tab",
+          "settings": {
+            "title": "Shipping & Returns",
+            "use_product_description": false,
+            "content": "<p><strong>Shipping:</strong></p><ul><li>Free shipping on orders above ₹499</li><li>Standard delivery: 5-7 business days</li><li>Express delivery: 2-3 business days</li></ul><p><strong>Returns:</strong></p><ul><li>Easy 7-day return policy</li><li>Items must be unused and in original packaging</li><li>Refunds processed within 5-7 business days</li></ul>"
+          }
+        }
+      },
+      "block_order": ["tab-description", "tab-specifications", "tab-shipping"],
+      "settings": {}
+    },
+    "related-products": {
+      "type": "related-products",
+      "settings": {
+        "heading": "You may also like",
+        "products_to_show": 4
+      }
+    }
+  },
+  "order": ["main-product", "product-tabs", "related-products"]
+}

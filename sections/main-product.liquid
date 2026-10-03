@@ -1,0 +1,305 @@
+{%- comment -%}
+  Main Product Section
+  Renders the complete product page with gallery, variants, and add to cart functionality.
+{%- endcomment -%}
+
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+  assign featured_image = product.selected_or_first_available_variant.featured_media | default: product.featured_media
+-%}
+
+<section class="main-product section" data-product-section>
+  <div class="container">
+    <div class="main-product__wrapper">
+      {%- comment -%} Product Gallery {%- endcomment -%}
+      <div class="main-product__gallery" data-product-gallery>
+        <div class="main-product__featured-image-wrapper">
+          {%- if section.settings.enable_zoom -%}
+            <div class="main-product__zoom-container" data-zoom-container>
+          {%- endif -%}
+          
+          <div class="main-product__featured-image" data-featured-image>
+            {%- if featured_image -%}
+              <img
+                id="ProductFeaturedImage-{{ section.id }}"
+                class="main-product__image"
+                src="{{ featured_image | image_url: width: 800 }}"
+                alt="{{ featured_image.alt | default: product.title | escape }}"
+                width="{{ featured_image.width }}"
+                height="{{ featured_image.height }}"
+                data-product-featured-image
+                {% if section.settings.enable_zoom %}data-zoom-src="{{ featured_image | image_url: width: 1600 }}"{% endif %}
+              >
+            {%- else -%}
+              <div class="main-product__placeholder">
+                {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+              </div>
+            {%- endif -%}
+          </div>
+          
+          {%- if section.settings.enable_zoom -%}
+              <div class="main-product__zoom-lens" data-zoom-lens hidden></div>
+            </div>
+            <div class="main-product__zoom-result" data-zoom-result hidden></div>
+          {%- endif -%}
+          
+          {%- comment -%} Badges {%- endcomment -%}
+          <div class="main-product__badges">
+            {%- unless product.available -%}
+              <span class="badge badge--sold-out">{{ 'products.sold_out' | t }}</span>
+            {%- elsif product.compare_at_price > product.price -%}
+              {%- assign savings_percent = product.compare_at_price | minus: product.price | times: 100.0 | divided_by: product.compare_at_price | round -%}
+              <span class="badge badge--sale">-{{ savings_percent }}%</span>
+            {%- endunless -%}
+          </div>
+        </div>
+        
+        {%- comment -%} Thumbnails {%- endcomment -%}
+        {%- if product.media.size > 1 -%}
+          <div class="main-product__thumbnails" data-product-thumbnails>
+            {%- for media in product.media -%}
+              <button
+                type="button"
+                class="main-product__thumbnail{% if media == featured_image %} is-active{% endif %}"
+                data-thumbnail
+                data-media-id="{{ media.id }}"
+                data-image-src="{{ media.preview_image | image_url: width: 800 }}"
+                {% if section.settings.enable_zoom %}data-zoom-src="{{ media.preview_image | image_url: width: 1600 }}"{% endif %}
+                aria-label="{{ 'products.view_image' | t }}: {{ media.alt | default: product.title | escape }}"
+              >
+                <img
+                  src="{{ media.preview_image | image_url: width: 100 }}"
+                  alt="{{ media.alt | default: product.title | escape }}"
+                  width="100"
+                  height="100"
+                  loading="lazy"
+                >
+              </button>
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+      </div>
+      
+      {%- comment -%} Product Info {%- endcomment -%}
+      <div class="main-product__info">
+        {%- comment -%} Vendor {%- endcomment -%}
+        {%- if section.settings.show_vendor and product.vendor != blank -%}
+          <p class="main-product__vendor">
+            <a href="{{ product.vendor | url_for_vendor }}">{{ product.vendor }}</a>
+          </p>
+        {%- endif -%}
+        
+        {%- comment -%} Title {%- endcomment -%}
+        <h1 class="main-product__title">{{ product.title }}</h1>
+        
+        {%- comment -%} SKU {%- endcomment -%}
+        {%- if section.settings.show_sku and current_variant.sku != blank -%}
+          <p class="main-product__sku" data-product-sku>
+            {{ 'products.sku' | t }}: <span data-sku-value>{{ current_variant.sku }}</span>
+          </p>
+        {%- endif -%}
+        
+        {%- comment -%} Price {%- endcomment -%}
+        <div class="main-product__price" data-product-price>
+          {%- if current_variant.compare_at_price > current_variant.price -%}
+            <span class="price price--sale" data-price>{{ current_variant.price | money }}</span>
+            <span class="price price--compare" data-compare-price>{{ current_variant.compare_at_price | money }}</span>
+          {%- else -%}
+            <span class="price" data-price>{{ current_variant.price | money }}</span>
+            <span class="price price--compare" data-compare-price hidden></span>
+          {%- endif -%}
+        </div>
+        
+        {%- comment -%} Product Form {%- endcomment -%}
+        {%- form 'product', product, id: 'ProductForm', class: 'main-product__form', data-product-form: '' -%}
+          <input type="hidden" name="id" value="{{ current_variant.id }}" data-variant-id>
+          
+          {%- comment -%} Variant Selectors {%- endcomment -%}
+          {%- unless product.has_only_default_variant -%}
+            <div class="main-product__variants">
+              {%- for option in product.options_with_values -%}
+                <div class="main-product__option form-group">
+                  <label class="form-label" for="Option-{{ section.id }}-{{ forloop.index }}">
+                    {{ option.name }}
+                  </label>
+                  <select
+                    id="Option-{{ section.id }}-{{ forloop.index }}"
+                    class="form-select main-product__option-select"
+                    name="options[{{ option.name }}]"
+                    data-option-select
+                    data-option-index="{{ forloop.index0 }}"
+                  >
+                    {%- for value in option.values -%}
+                      <option
+                        value="{{ value | escape }}"
+                        {% if value == option.selected_value %}selected{% endif %}
+                      >
+                        {{ value }}
+                      </option>
+                    {%- endfor -%}
+                  </select>
+                </div>
+              {%- endfor -%}
+            </div>
+          {%- endunless -%}
+          
+          {%- comment -%} Quantity Selector {%- endcomment -%}
+          <div class="main-product__quantity form-group">
+            <label class="form-label" for="Quantity-{{ section.id }}">{{ 'products.quantity' | t }}</label>
+            <div class="quantity-selector">
+              <button type="button" class="quantity-selector__btn" data-quantity-decrease aria-label="{{ 'products.decrease_quantity' | t }}">
+                {% render 'icon', name: 'minus', size: 16 %}
+              </button>
+              <input
+                type="number"
+                id="Quantity-{{ section.id }}"
+                class="quantity-selector__input"
+                name="quantity"
+                value="1"
+                min="1"
+                max="{{ current_variant.inventory_quantity | default: 999 }}"
+                data-quantity-input
+              >
+              <button type="button" class="quantity-selector__btn" data-quantity-increase aria-label="{{ 'products.increase_quantity' | t }}">
+                {% render 'icon', name: 'plus', size: 16 %}
+              </button>
+            </div>
+          </div>
+          
+          {%- comment -%} Add to Cart Button {%- endcomment -%}
+          <div class="main-product__add-to-cart">
+            <button
+              type="submit"
+              name="add"
+              class="btn btn--primary btn--lg btn--full main-product__add-btn"
+              data-add-to-cart
+              {% unless current_variant.available %}disabled{% endunless %}
+            >
+              <span class="main-product__add-btn-text" data-add-to-cart-text>
+                {%- if current_variant.available -%}
+                  {% render 'icon', name: 'cart', size: 20 %}
+                  {{ 'products.add_to_cart' | t }}
+                {%- else -%}
+                  {{ 'products.sold_out' | t }}
+                {%- endif -%}
+              </span>
+              <span class="main-product__add-btn-loading" hidden>
+                <span class="loading-spinner"></span>
+                {{ 'products.adding' | t }}
+              </span>
+            </button>
+          </div>
+        {%- endform -%}
+        
+        {%- comment -%} Buy Now Button (Direct Checkout) {%- endcomment -%}
+        {%- if current_variant.available -%}
+          <div class="main-product__buy-now">
+            <form action="/cart/add" method="post">
+              <input type="hidden" name="id" value="{{ current_variant.id }}">
+              <input type="hidden" name="quantity" value="1">
+              <button type="submit" name="checkout" class="btn btn--secondary btn--lg btn--full" formaction="/checkout">
+                {{ 'products.buy_now' | t }}
+              </button>
+            </form>
+          </div>
+        {%- endif -%}
+        
+        {%- comment -%} Product Description {%- endcomment -%}
+        {%- if product.description != blank -%}
+          <div class="main-product__description rte">
+            {{ product.description }}
+          </div>
+        {%- endif -%}
+        
+        {%- comment -%} Share Buttons {%- endcomment -%}
+        {%- if section.settings.show_share_buttons -%}
+          <div class="main-product__share">
+            <span class="main-product__share-label">{{ 'products.share' | t }}:</span>
+            <div class="main-product__share-buttons">
+              <a
+                href="https://www.facebook.com/sharer/sharer.php?u={{ shop.url | append: product.url | url_encode }}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="main-product__share-btn"
+                aria-label="Share on Facebook"
+              >
+                {% render 'icon', name: 'facebook', size: 20 %}
+              </a>
+              <a
+                href="https://twitter.com/intent/tweet?url={{ shop.url | append: product.url | url_encode }}&text={{ product.title | url_encode }}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="main-product__share-btn"
+                aria-label="Share on Twitter"
+              >
+                {% render 'icon', name: 'twitter', size: 20 %}
+              </a>
+              <a
+                href="https://wa.me/?text={{ product.title | url_encode }}%20{{ shop.url | append: product.url | url_encode }}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="main-product__share-btn"
+                aria-label="Share on WhatsApp"
+              >
+                {% render 'icon', name: 'whatsapp', size: 20 %}
+              </a>
+              <a
+                href="https://pinterest.com/pin/create/button/?url={{ shop.url | append: product.url | url_encode }}&media={{ product.featured_media | image_url: width: 1000 | url_encode }}&description={{ product.title | url_encode }}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="main-product__share-btn"
+                aria-label="Share on Pinterest"
+              >
+                {% render 'icon', name: 'pinterest', size: 20 %}
+              </a>
+            </div>
+          </div>
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+  
+  {%- comment -%} Product JSON for JavaScript {%- endcomment -%}
+  <script type="application/json" data-product-json>
+    {{ product | json }}
+  </script>
+</section>
+
+{% schema %}
+{
+  "name": "Main Product",
+  "tag": "section",
+  "class": "main-product-section",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "enable_zoom",
+      "label": "Enable image zoom on hover",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "Show product vendor",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_sku",
+      "label": "Show SKU",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_share_buttons",
+      "label": "Show social share buttons",
+      "default": true
+    }
+  ],
+  "presets": [
+    {
+      "name": "Main Product"
+    }
+  ]
+}
+{% endschema %}

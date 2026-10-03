@@ -1,0 +1,255 @@
+{%- comment -%}
+  Product Tabs Section
+  Tabbed interface for product description, specifications, shipping info, and reviews.
+{%- endcomment -%}
+
+{%- if section.blocks.size > 0 -%}
+<section class="product-tabs section">
+  <div class="container">
+    <div class="product-tabs__wrapper" data-tabs>
+      {%- comment -%} Tab Navigation {%- endcomment -%}
+      <div class="product-tabs__nav" role="tablist" aria-label="Product information">
+        {%- for block in section.blocks -%}
+          <button
+            type="button"
+            role="tab"
+            id="Tab-{{ section.id }}-{{ forloop.index }}"
+            class="product-tabs__tab{% if forloop.first %} is-active{% endif %}"
+            aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+            aria-controls="TabPanel-{{ section.id }}-{{ forloop.index }}"
+            tabindex="{% if forloop.first %}0{% else %}-1{% endif %}"
+            {{ block.shopify_attributes }}
+          >
+            {{ block.settings.title }}
+          </button>
+        {%- endfor -%}
+      </div>
+      
+      {%- comment -%} Tab Panels {%- endcomment -%}
+      <div class="product-tabs__panels">
+        {%- for block in section.blocks -%}
+          <div
+            role="tabpanel"
+            id="TabPanel-{{ section.id }}-{{ forloop.index }}"
+            class="product-tabs__panel"
+            aria-labelledby="Tab-{{ section.id }}-{{ forloop.index }}"
+            {% unless forloop.first %}hidden{% endunless %}
+            tabindex="0"
+          >
+            <div class="product-tabs__content rte">
+              {%- if block.settings.use_product_description -%}
+                {{ product.description }}
+              {%- else -%}
+                {{ block.settings.content }}
+              {%- endif -%}
+            </div>
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+</section>
+{%- endif -%}
+
+<style>
+  .product-tabs {
+    padding-top: var(--spacing-8);
+    padding-bottom: var(--spacing-12);
+  }
+  
+  .product-tabs__wrapper {
+    background-color: var(--color-white);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+  
+  .product-tabs__nav {
+    display: flex;
+    flex-wrap: wrap;
+    border-bottom: 1px solid var(--color-gray-200);
+    background-color: var(--color-gray-50);
+  }
+  
+  .product-tabs__tab {
+    flex: 1 1 auto;
+    padding: var(--spacing-4) var(--spacing-6);
+    font-size: var(--font-size-base);
+    font-weight: 600;
+    color: var(--color-gray-600);
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    transition: color var(--transition-fast), border-color var(--transition-fast), background-color var(--transition-fast);
+    white-space: nowrap;
+  }
+  
+  .product-tabs__tab:hover {
+    color: var(--color-primary);
+    background-color: var(--color-gray-100);
+  }
+  
+  .product-tabs__tab.is-active,
+  .product-tabs__tab[aria-selected="true"] {
+    color: var(--color-primary);
+    border-bottom-color: var(--color-primary);
+    background-color: var(--color-white);
+  }
+  
+  .product-tabs__panels {
+    padding: var(--spacing-6);
+  }
+  
+  .product-tabs__panel {
+    animation: fadeIn 0.3s ease;
+  }
+  
+  .product-tabs__content {
+    line-height: var(--line-height-relaxed);
+  }
+  
+  .product-tabs__content h2,
+  .product-tabs__content h3,
+  .product-tabs__content h4 {
+    margin-top: var(--spacing-6);
+    margin-bottom: var(--spacing-3);
+  }
+  
+  .product-tabs__content h2:first-child,
+  .product-tabs__content h3:first-child,
+  .product-tabs__content h4:first-child {
+    margin-top: 0;
+  }
+  
+  .product-tabs__content ul,
+  .product-tabs__content ol {
+    margin-left: var(--spacing-6);
+    margin-bottom: var(--spacing-4);
+  }
+  
+  .product-tabs__content ul {
+    list-style: disc;
+  }
+  
+  .product-tabs__content ol {
+    list-style: decimal;
+  }
+  
+  .product-tabs__content li {
+    margin-bottom: var(--spacing-2);
+  }
+  
+  .product-tabs__content table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: var(--spacing-4);
+  }
+  
+  .product-tabs__content th,
+  .product-tabs__content td {
+    padding: var(--spacing-3) var(--spacing-4);
+    text-align: left;
+    border-bottom: 1px solid var(--color-gray-200);
+  }
+  
+  .product-tabs__content th {
+    font-weight: 600;
+    background-color: var(--color-gray-50);
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  @media screen and (max-width: 767px) {
+    .product-tabs__nav {
+      flex-direction: column;
+    }
+    
+    .product-tabs__tab {
+      flex: none;
+      width: 100%;
+      text-align: left;
+      border-bottom: 1px solid var(--color-gray-200);
+      border-left: 3px solid transparent;
+    }
+    
+    .product-tabs__tab.is-active,
+    .product-tabs__tab[aria-selected="true"] {
+      border-bottom-color: var(--color-gray-200);
+      border-left-color: var(--color-primary);
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Product Tabs",
+  "tag": "section",
+  "class": "product-tabs-section",
+  "settings": [],
+  "blocks": [
+    {
+      "type": "tab",
+      "name": "Tab",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Tab title",
+          "default": "Tab Title"
+        },
+        {
+          "type": "checkbox",
+          "id": "use_product_description",
+          "label": "Use product description as content",
+          "info": "If enabled, the product description will be shown instead of the content below.",
+          "default": false
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "Tab content",
+          "default": "<p>Add your content here.</p>"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Tabs",
+      "blocks": [
+        {
+          "type": "tab",
+          "settings": {
+            "title": "Description",
+            "use_product_description": true
+          }
+        },
+        {
+          "type": "tab",
+          "settings": {
+            "title": "Specifications",
+            "content": "<p>Product specifications go here. Include details like dimensions, materials, weight, etc.</p>"
+          }
+        },
+        {
+          "type": "tab",
+          "settings": {
+            "title": "Shipping & Returns",
+            "content": "<p><strong>Shipping:</strong></p><ul><li>Free shipping on orders above ₹499</li><li>Standard delivery: 5-7 business days</li><li>Express delivery: 2-3 business days</li></ul><p><strong>Returns:</strong></p><ul><li>Easy 7-day return policy</li><li>Items must be unused and in original packaging</li><li>Refunds processed within 5-7 business days</li></ul>"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

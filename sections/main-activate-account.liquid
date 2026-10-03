@@ -1,0 +1,136 @@
+{%- comment -%}
+  Account Activation Section
+  Form for customers to activate their account with a password.
+{%- endcomment -%}
+
+<section class="main-activate section">
+  <div class="container container--narrow">
+    <div class="main-activate__wrapper">
+      <div class="main-activate__header">
+        <h1 class="main-activate__title">{{ 'customer.activate_account.title' | t }}</h1>
+        <p class="main-activate__subtitle">{{ 'customer.activate_account.subtext' | t }}</p>
+      </div>
+      
+      {%- form 'activate_customer_password', class: 'main-activate__form' -%}
+        {%- if form.errors -%}
+          <div class="main-activate__error form-error-wrapper">
+            <p>{{ form.errors | default_errors }}</p>
+          </div>
+        {%- endif -%}
+        
+        <div class="form-group">
+          <label for="Password" class="form-label">{{ 'customer.activate_account.password' | t }}</label>
+          <input
+            type="password"
+            id="Password"
+            class="form-input"
+            name="customer[password]"
+            autocomplete="new-password"
+            required
+            minlength="5"
+            placeholder="{{ 'customer.activate_account.password_placeholder' | t }}"
+          >
+        </div>
+        
+        <div class="form-group">
+          <label for="PasswordConfirmation" class="form-label">{{ 'customer.activate_account.password_confirm' | t }}</label>
+          <input
+            type="password"
+            id="PasswordConfirmation"
+            class="form-input"
+            name="customer[password_confirmation]"
+            autocomplete="new-password"
+            required
+            minlength="5"
+            placeholder="{{ 'customer.activate_account.password_confirm_placeholder' | t }}"
+          >
+        </div>
+        
+        <button type="submit" class="btn btn--primary btn--lg btn--full">
+          {{ 'customer.activate_account.submit' | t }}
+        </button>
+        
+        <div class="main-activate__decline">
+          <p>{{ 'customer.activate_account.decline' | t }}</p>
+          <button type="submit" name="decline" class="main-activate__decline-link">
+            {{ 'customer.activate_account.decline_link' | t }}
+          </button>
+        </div>
+      {%- endform -%}
+    </div>
+  </div>
+</section>
+
+<style>
+  .main-activate__wrapper {
+    max-width: 450px;
+    margin: 0 auto;
+    background-color: var(--color-white);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-lg);
+    padding: var(--spacing-8);
+  }
+  
+  .main-activate__header {
+    text-align: center;
+    margin-bottom: var(--spacing-6);
+  }
+  
+  .main-activate__title {
+    margin-bottom: var(--spacing-2);
+  }
+  
+  .main-activate__subtitle {
+    color: var(--color-gray-600);
+    margin-bottom: 0;
+  }
+  
+  .main-activate__error {
+    background-color: #FEE2E2;
+    color: #DC2626;
+    padding: var(--spacing-3) var(--spacing-4);
+    border-radius: var(--border-radius-md);
+    margin-bottom: var(--spacing-4);
+    font-size: var(--font-size-sm);
+  }
+  
+  .main-activate__decline {
+    margin-top: var(--spacing-6);
+    padding-top: var(--spacing-6);
+    border-top: 1px solid var(--color-gray-200);
+    text-align: center;
+  }
+  
+  .main-activate__decline p {
+    color: var(--color-gray-600);
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--spacing-2);
+  }
+  
+  .main-activate__decline-link {
+    font-size: var(--font-size-sm);
+    color: var(--color-gray-500);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+  
+  .main-activate__decline-link:hover {
+    color: var(--color-deep-red);
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Activate Account",
+  "tag": "section",
+  "class": "main-activate-section",
+  "settings": [],
+  "presets": [
+    {
+      "name": "Activate Account"
+    }
+  ]
+}
+{% endschema %}

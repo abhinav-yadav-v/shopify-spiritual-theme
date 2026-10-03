@@ -1126,6 +1126,377 @@
   };
 
   // ============================================
+  // Product Gallery
+  // ============================================
+
+  const ProductGallery = {
+    selectors: {
+      section: '[data-product-section]',
+      gallery: '[data-product-gallery]',
+      featuredImage: '[data-product-featured-image]',
+      thumbnails: '[data-product-thumbnails]',
+      thumbnail: '[data-thumbnail]',
+      zoomContainer: '[data-zoom-container]',
+      zoomLens: '[data-zoom-lens]',
+      zoomResult: '[data-zoom-result]'
+    },
+
+    init() {
+      $$(this.selectors.gallery).forEach(gallery => {
+        this.setupGallery(gallery);
+      });
+    },
+
+    setupGallery(gallery) {
+      const thumbnails = $$(this.selectors.thumbnail, gallery);
+      const featuredImage = $(this.selectors.featuredImage, gallery);
+      
+      thumbnails.forEach(thumb => {
+        thumb.addEventListener('click', () => {
+          const imageSrc = thumb.dataset.imageSrc;
+          const zoomSrc = thumb.dataset.zoomSrc;
+          
+          if (featuredImage && imageSrc) {
+            featuredImage.src = imageSrc;
+            if (zoomSrc) featuredImage.dataset.zoomSrc = zoomSrc;
+          }
+          
+          thumbnails.forEach(t => t.classList.remove('is-active'));
+          thumb.classList.add('is-active');
+        });
+      });
+
+      this.setupZoom(gallery);
+    },
+
+    setupZoom(gallery) {
+      const container = $(this.selectors.zoomContainer, gallery);
+      const lens = $(this.selectors.zoomLens, gallery);
+      const result = $(this.selectors.zoomResult, gallery);
+      const image = $(this.selectors.featuredImage, gallery);
+      
+      if (!container || !lens || !result || !image) return;
+      
+      container.addEventListener('mouseenter', () => {
+        lens.hidden = false;
+        result.hidden = false;
+        this.initZoom(image, lens, result);
+      });
+      
+      container.addEventListener('mouseleave', () => {
+        lens.hidden = true;
+        result.hidden = true;
+      });
+      
+      container.addEventListener('mousemove', (e) => {
+        this.moveZoom(e, container, image, lens, result);
+      });
+    },
+
+    initZoom(image, lens, result) {
+      const zoomSrc = image.dataset.zoomSrc || image.src;
+      result.style.backgroundImage = `url('${zoomSrc}')`;
+      lens.style.width = '100px';
+      lens.style.height = '100px';
+      const cx = result.offsetWidth / lens.offsetWidth;
+      const cy = result.offsetHeight / lens.offsetHeight;
+      result.style.backgroundSize = `${image.width * cx}px ${image.height * cy}px`;
+    },
+
+    moveZoom(e, container, image, lens, result) {
+      const bounds = container.getBoundingClientRect();
+      let x = e.clientX - bounds.left - lens.offsetWidth / 2;
+      let y = e.clientY - bounds.top - lens.offsetHeight / 2;
+      x = Math.max(0, Math.min(x, image.width - lens.offsetWidth));
+      y = Math.max(0, Math.min(y, image.height - lens.offsetHeight));
+      lens.style.left = x + 'px';
+      lens.style.top = y + 'px';
+      const cx = result.offsetWidth / lens.offsetWidth;
+      const cy = result.offsetHeight / lens.offsetHeight;
+      result.style.backgroundPosition = `-${x * cx}px -${y * cy}px`;
+    }
+  };
+
+  // ============================================
+  // Product Variant Selector
+  // ============================================
+
+  const ProductVariants = {
+    selectors: {
+      section: '[data-product-section]',
+      form: '[data-product-form]',
+      productJson: '[data-product-json]',
+      optionSelect: '[data-option-select]',
+      variantId: '[data-variant-id]',
+      price: '[data-price]',
+      comparePrice: '[data-compare-price]',
+      addToCart: '[data-add-to-cart]',
+      addToCartText: '[data-add-to-cart-text]',
+      skuValue: '[data-sku-value]',
+      featuredImage: '[data-product-featured-image]'
+    },
+
+    init() {
+      $$(this.selectors.section).forEach(section => {
+        this.setupVariants(section);
+      });
+    },
+
+    setupVariants(section) {
+      const productJson = $(this.selectors.productJson, section);
+      if (!productJson) return;
+      
+      let product;
+      try {
+        product = JSON.parse(productJson.textContent);
+      } catch (e) {
+        return;
+      }
+      
+      $$(this.selectors.optionSelect, section).forEach(select => {
+        select.addEventListener('change', () => {
+          this.onVariantChange(section, product);
+        });
+      });
+    },
+
+    onVariantChange(section, product) {
+      const options = this.getSelectedOptions(section);
+      const variant = this.getVariantFromOptions(product, options);
+      
+      if (variant) {
+        this.updateVariantId(section, variant);
+        this.updatePrice(section, variant);
+        this.updateAddToCart(section, variant);
+        this.updateSku(section, variant);
+        this.updateUrl(variant);
+      }
+    },
+
+    getSelectedOptions(section) {
+      const options = [];
+      $$(this.selectors.optionSelect, section).forEach(select => {
+        options.push(select.value);
+      });
+      return options;
+    },
+
+    getVariantFromOptions(product, options) {
+      return product.variants.find(variant => {
+        return options.every((option, index) => variant.options[index] === option);
+      });
+    },
+
+    updateVariantId(section, variant) {
+      const input = $(this.selectors.variantId, section);
+      if (input) input.value = variant.id;
+    },
+
+    updatePrice(section, variant) {
+      const priceEl = $(this.selectors.price, section);
+      const comparePriceEl = $(this.selectors.comparePrice, section);
+      
+      if (priceEl) {
+        priceEl.textContent = formatMoney(variant.price);
+        priceEl.classList.toggle('price--sale', variant.compare_at_price > variant.price);
+      }
+      
+      if (comparePriceEl) {
+        if (variant.compare_at_price > variant.price) {
+          comparePriceEl.textContent = formatMoney(variant.compare_at_price);
+          comparePriceEl.hidden = false;
+        } else {
+          comparePriceEl.hidden = true;
+        }
+      }
+    },
+
+    updateAddToCart(section, variant) {
+      const btn = $(this.selectors.addToCart, section);
+      const textEl = $(this.selectors.addToCartText, section);
+      if (btn) btn.disabled = !variant.available;
+      if (textEl) textEl.textContent = variant.available ? 'Add to cart' : 'Sold out';
+    },
+
+    updateSku(section, variant) {
+      const skuEl = $(this.selectors.skuValue, section);
+      if (skuEl && variant.sku) skuEl.textContent = variant.sku;
+    },
+
+    updateUrl(variant) {
+      if (history.replaceState) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('variant', variant.id);
+        history.replaceState({}, '', url);
+      }
+    }
+  };
+
+  // ============================================
+  // Product Form (AJAX Add to Cart)
+  // ============================================
+
+  const ProductForm = {
+    selectors: {
+      form: '[data-product-form]',
+      addToCart: '[data-add-to-cart]',
+      addToCartText: '[data-add-to-cart-text]',
+      addToCartLoading: '.main-product__add-btn-loading'
+    },
+
+    init() {
+      $$(this.selectors.form).forEach(form => {
+        form.addEventListener('submit', (e) => {
+          e.preventDefault();
+          this.handleSubmit(form);
+        });
+      });
+    },
+
+    async handleSubmit(form) {
+      const btn = $(this.selectors.addToCart, form);
+      const textEl = $(this.selectors.addToCartText, form);
+      const loadingEl = $(this.selectors.addToCartLoading, form);
+      
+      if (btn.disabled) return;
+      
+      btn.disabled = true;
+      if (textEl) textEl.hidden = true;
+      if (loadingEl) loadingEl.hidden = false;
+      
+      const formData = new FormData(form);
+      
+      try {
+        const response = await fetch('/cart/add.js', {
+          method: 'POST',
+          body: formData
+        });
+        
+        if (response.ok) {
+          Cart.updateCartCount();
+        }
+      } catch (error) {
+        console.error('Add to cart failed:', error);
+      } finally {
+        btn.disabled = false;
+        if (textEl) textEl.hidden = false;
+        if (loadingEl) loadingEl.hidden = true;
+      }
+    }
+  };
+
+  // ============================================
+  // Collection Filters
+  // ============================================
+
+  const CollectionFilters = {
+    selectors: {
+      section: '[data-collection-section]',
+      sidebar: '[data-filters-sidebar]',
+      toggle: '[data-filters-toggle]',
+      close: '[data-filters-close]',
+      overlay: '[data-filters-overlay]',
+      sortSelect: '[data-sort-select]'
+    },
+
+    init() {
+      $$(this.selectors.section).forEach(section => {
+        this.setupFilters(section);
+      });
+    },
+
+    setupFilters(section) {
+      const toggle = $(this.selectors.toggle, section);
+      const sidebar = $(this.selectors.sidebar, section);
+      const close = $(this.selectors.close, section);
+      const overlay = $(this.selectors.overlay, section);
+      const sortSelect = $(this.selectors.sortSelect, section);
+      
+      if (toggle && sidebar) {
+        toggle.addEventListener('click', () => {
+          sidebar.classList.add('is-active');
+          if (overlay) overlay.classList.add('is-active');
+          document.body.style.overflow = 'hidden';
+        });
+      }
+      
+      if (close && sidebar) {
+        close.addEventListener('click', () => {
+          sidebar.classList.remove('is-active');
+          if (overlay) overlay.classList.remove('is-active');
+          document.body.style.overflow = '';
+        });
+      }
+      
+      if (overlay && sidebar) {
+        overlay.addEventListener('click', () => {
+          sidebar.classList.remove('is-active');
+          overlay.classList.remove('is-active');
+          document.body.style.overflow = '';
+        });
+      }
+      
+      if (sortSelect) {
+        sortSelect.addEventListener('change', () => {
+          const url = new URL(window.location.href);
+          url.searchParams.set('sort_by', sortSelect.value);
+          window.location.href = url.toString();
+        });
+      }
+    }
+  };
+
+  // ============================================
+  // Cart Page
+  // ============================================
+
+  const CartPage = {
+    selectors: {
+      form: '[data-cart-form]',
+      quantityInput: '[data-quantity-input]',
+      removeBtn: '[data-remove-item]'
+    },
+
+    init() {
+      const form = $(this.selectors.form);
+      if (!form) return;
+      
+      $$(this.selectors.quantityInput, form).forEach(input => {
+        input.addEventListener('change', debounce(() => {
+          this.updateQuantity(input);
+        }, 300));
+      });
+      
+      $$(this.selectors.removeBtn, form).forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          const line = btn.dataset.line;
+          this.updateLine(line, 0);
+        });
+      });
+    },
+
+    async updateQuantity(input) {
+      const line = input.dataset.line;
+      const quantity = parseInt(input.value);
+      this.updateLine(line, quantity);
+    },
+
+    async updateLine(line, quantity) {
+      try {
+        const response = await fetch('/cart/change.js', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ line: parseInt(line), quantity })
+        });
+        if (response.ok) window.location.reload();
+      } catch (error) {
+        console.error('Cart update failed:', error);
+      }
+    }
+  };
+
+  // ============================================
   // Initialize All Modules
   // ============================================
 
@@ -1143,6 +1514,11 @@
     Cart.init();
     HeroSlideshow.init();
     TestimonialsCarousel.init();
+    ProductGallery.init();
+    ProductVariants.init();
+    ProductForm.init();
+    CollectionFilters.init();
+    CartPage.init();
   }
 
   // Run on DOMContentLoaded
@@ -1162,7 +1538,12 @@
     Cart,
     Modal,
     HeroSlideshow,
-    TestimonialsCarousel
+    TestimonialsCarousel,
+    ProductGallery,
+    ProductVariants,
+    ProductForm,
+    CollectionFilters,
+    CartPage
   };
 
 })();

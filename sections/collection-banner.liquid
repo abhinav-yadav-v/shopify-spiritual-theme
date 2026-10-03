@@ -1,0 +1,215 @@
+{%- comment -%}
+  Collection Banner Section
+  Full-width banner with collection image, title overlay, and optional description.
+{%- endcomment -%}
+
+{%- liquid
+  assign show_image = section.settings.show_image
+  assign show_description = section.settings.show_description
+  assign overlay_opacity = section.settings.overlay_opacity | divided_by: 100.0
+  assign text_alignment = section.settings.text_alignment
+  assign min_height = section.settings.min_height
+-%}
+
+{%- if collection -%}
+  <section class="collection-banner" style="--overlay-opacity: {{ overlay_opacity }}; --min-height: {{ min_height }}vh;">
+    <div class="collection-banner__wrapper text-{{ text_alignment }}">
+      {%- comment -%} Background Image {%- endcomment -%}
+      {%- if show_image and collection.image -%}
+        <div class="collection-banner__image-wrapper">
+          <img
+            class="collection-banner__image"
+            src="{{ collection.image | image_url: width: 1920 }}"
+            alt="{{ collection.image.alt | default: collection.title | escape }}"
+            width="{{ collection.image.width }}"
+            height="{{ collection.image.height }}"
+            loading="eager"
+          >
+        </div>
+      {%- else -%}
+        <div class="collection-banner__placeholder">
+          {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg' }}
+        </div>
+      {%- endif -%}
+      
+      {%- comment -%} Overlay {%- endcomment -%}
+      <div class="collection-banner__overlay"></div>
+      
+      {%- comment -%} Content {%- endcomment -%}
+      <div class="collection-banner__content">
+        <div class="container">
+          <h1 class="collection-banner__title">{{ collection.title }}</h1>
+          
+          {%- if show_description and collection.description != blank -%}
+            <div class="collection-banner__description rte">
+              {{ collection.description }}
+            </div>
+          {%- endif -%}
+          
+          {%- if collection.products_count > 0 -%}
+            <p class="collection-banner__count">
+              {{ collection.products_count }} {{ 'collections.products' | t }}
+            </p>
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+  </section>
+{%- endif -%}
+
+<style>
+  .collection-banner {
+    position: relative;
+    margin-bottom: var(--spacing-8);
+  }
+  
+  .collection-banner__wrapper {
+    position: relative;
+    min-height: var(--min-height, 40vh);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  
+  .collection-banner__image-wrapper {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+  
+  .collection-banner__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  
+  .collection-banner__placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: var(--color-gray-200);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .collection-banner__placeholder svg {
+    width: 50%;
+    height: 50%;
+    fill: var(--color-gray-400);
+  }
+  
+  .collection-banner__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, var(--overlay-opacity, 0.4));
+  }
+  
+  .collection-banner__content {
+    position: relative;
+    z-index: 1;
+    padding: var(--spacing-12) 0;
+    color: var(--color-white);
+    width: 100%;
+  }
+  
+  .collection-banner__title {
+    color: var(--color-white);
+    font-size: var(--font-size-4xl);
+    margin-bottom: var(--spacing-3);
+  }
+  
+  @media screen and (min-width: 768px) {
+    .collection-banner__title {
+      font-size: var(--font-size-5xl);
+    }
+  }
+  
+  .collection-banner__description {
+    max-width: 700px;
+    margin-bottom: var(--spacing-4);
+    font-size: var(--font-size-lg);
+    opacity: 0.9;
+  }
+  
+  .text-center .collection-banner__description {
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .text-right .collection-banner__description {
+    margin-left: auto;
+  }
+  
+  .collection-banner__count {
+    font-size: var(--font-size-sm);
+    opacity: 0.8;
+    margin-bottom: 0;
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Collection Banner",
+  "tag": "section",
+  "class": "collection-banner-section",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "show_image",
+      "label": "Show collection image",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "Show collection description",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Overlay opacity",
+      "min": 0,
+      "max": 90,
+      "step": 10,
+      "default": 40,
+      "unit": "%"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "Text alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "range",
+      "id": "min_height",
+      "label": "Minimum height",
+      "min": 20,
+      "max": 60,
+      "step": 5,
+      "default": 40,
+      "unit": "vh"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Collection Banner"
+    }
+  ]
+}
+{% endschema %}

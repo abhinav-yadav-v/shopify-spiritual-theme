@@ -1,0 +1,44 @@
+{
+  "id": "FEAT-004",
+  "type": "feat",
+  "description": "Create product and collection pages: product template with image gallery, variant selector, add to cart, description tabs, and related products; collection template with filtering, sorting, pagination, and product grid. Also create cart page and all customer account templates.",
+  "status": "completed",
+  "steps": [
+    "Create sections/main-product.liquid with: product image gallery (main image + thumbnails, zoom on hover), variant selector (dropdowns or swatches), quantity selector, Add to Cart button with loading state, price display (compare-at price with sale indication), product description, vendor, SKU. Schema settings: enable_zoom checkbox, show_vendor checkbox, show_sku checkbox, show_share_buttons checkbox. Use product object. Include product form with action '/cart/add'.",
+    "Create sections/product-tabs.liquid with: tabbed interface for Description, Specifications, Shipping Info, Reviews. Schema with blocks type 'tab' having settings: title text, content richtext, use_product_description checkbox (for first tab). Include presets with 3 default tabs.",
+    "Create sections/related-products.liquid with: grid of related products using recommendations API or manual collection fallback. Schema settings: heading text, products_to_show range (4-8), collection collection picker (fallback). Use {% render 'product-card' %} for each product.",
+    "Create templates/product.json referencing main-product, product-tabs, related-products sections in order with default configurations.",
+    "Create sections/main-collection.liquid with: collection header (title, description, image), product grid, filtering sidebar (by type, vendor, price), sort dropdown (best selling, price low-high, price high-low, newest), pagination. Schema settings: products_per_page range (12-48), show_filters checkbox, show_sort checkbox, default_sort select, columns_desktop range (3-4). Use collection object and paginate tag.",
+    "Create sections/collection-banner.liquid with: full-width collection image, title overlay, optional description. Schema settings: show_image checkbox, show_description checkbox, overlay_opacity range, text_alignment select.",
+    "Create templates/collection.json referencing collection-banner, main-collection sections.",
+    "Create sections/main-cart.liquid with: cart items table (product image, title, variant, price, quantity selector, line total, remove button), cart totals, checkout button, continue shopping link, empty cart message. Use cart object and line_item loop. Include form with action '/cart' method='post'.",
+    "Create templates/cart.json referencing main-cart section.",
+    "Create templates/customers/login.json with section for login form (email, password, forgot password link) and register link.",
+    "Create sections/main-login.liquid with: customer login form, register link, forgot password modal/link. Use form 'customer_login' tag.",
+    "Create templates/customers/register.json with section for registration form.",
+    "Create sections/main-register.liquid with: registration form (first name, last name, email, password). Use form 'create_customer' tag.",
+    "Create templates/customers/account.json, templates/customers/order.json, templates/customers/addresses.json with basic sections for account overview, order details, address management.",
+    "Create sections/main-account.liquid, sections/main-order.liquid, sections/main-addresses.liquid for customer account pages using customer object.",
+    "Create templates/customers/activate_account.json, templates/customers/reset_password.json with appropriate form sections.",
+    "Update assets/theme.css with styles for: product gallery grid/thumbnails, zoom overlay, variant selectors, tabs component, collection filter sidebar, sort dropdown, cart table, form inputs, customer account pages.",
+    "Update assets/theme.js with: product image gallery thumbnail click, zoom functionality, variant change updating price/availability, tab switching, filter toggle on mobile, quantity increment/decrement, cart quantity AJAX update (optional enhancement)."
+  ],
+  "acceptance_criteria": [
+    "sections/main-product.liquid renders complete product page with gallery, variants, and add to cart form",
+    "Product form submits to /cart/add with product_id and quantity inputs",
+    "sections/main-collection.liquid paginates products and includes filter/sort controls",
+    "templates/product.json and templates/collection.json are valid JSON referencing existing sections",
+    "sections/main-cart.liquid renders cart items with quantity update and remove functionality",
+    "All 8 customer templates exist in templates/customers/ directory",
+    "Customer forms use correct Shopify form tags (customer_login, create_customer, recover_customer_password, etc.)"
+  ],
+  "verification": [
+    "Validate all template JSON files have valid syntax",
+    "Check main-product.liquid contains {% form 'product' %} tag",
+    "Check main-collection.liquid contains {% paginate %} tag",
+    "Check main-cart.liquid contains {% for item in cart.items %} loop",
+    "Verify all customer sections use appropriate {% form %} tags for their function"
+  ],
+  "blocked_reason": null,
+  "findings": "All 12 steps completed successfully. Created: sections/main-product.liquid (gallery, variants, add to cart), sections/product-tabs.liquid (tabbed interface), sections/related-products.liquid, templates/product.json, sections/main-collection.liquid (filters, sort, pagination), sections/collection-banner.liquid, templates/collection.json, sections/main-cart.liquid (items, totals, checkout), templates/cart.json, all 8 customer templates and sections (login, register, account, order, addresses, activate_account, reset_password with snippets/address-form.liquid). Updated theme.css with product, collection, cart, and RTE styles. Updated theme.js with ProductGallery, ProductVariants, ProductForm, CollectionFilters, and CartPage modules. All JSON templates validated. All required Liquid tags verified (form 'product', paginate, cart.items loop, customer form tags)."
+}

@@ -1,0 +1,239 @@
+{%- comment -%}
+  Address Form Snippet
+  Reusable form fields for customer address management.
+  
+  Parameters:
+  - form: form object (required)
+  - address: address object (required)
+{%- endcomment -%}
+
+<div class="address-form">
+  <div class="address-form__row">
+    <div class="form-group">
+      <label for="AddressFirstName_{{ address.id }}" class="form-label">{{ 'customer.addresses.first_name' | t }}</label>
+      <input
+        type="text"
+        id="AddressFirstName_{{ address.id }}"
+        class="form-input"
+        name="address[first_name]"
+        value="{{ address.first_name }}"
+        autocomplete="given-name"
+      >
+    </div>
+    
+    <div class="form-group">
+      <label for="AddressLastName_{{ address.id }}" class="form-label">{{ 'customer.addresses.last_name' | t }}</label>
+      <input
+        type="text"
+        id="AddressLastName_{{ address.id }}"
+        class="form-input"
+        name="address[last_name]"
+        value="{{ address.last_name }}"
+        autocomplete="family-name"
+      >
+    </div>
+  </div>
+  
+  <div class="form-group">
+    <label for="AddressCompany_{{ address.id }}" class="form-label">{{ 'customer.addresses.company' | t }}</label>
+    <input
+      type="text"
+      id="AddressCompany_{{ address.id }}"
+      class="form-input"
+      name="address[company]"
+      value="{{ address.company }}"
+      autocomplete="organization"
+    >
+  </div>
+  
+  <div class="form-group">
+    <label for="AddressAddress1_{{ address.id }}" class="form-label">{{ 'customer.addresses.address1' | t }}</label>
+    <input
+      type="text"
+      id="AddressAddress1_{{ address.id }}"
+      class="form-input"
+      name="address[address1]"
+      value="{{ address.address1 }}"
+      autocomplete="address-line1"
+      required
+    >
+  </div>
+  
+  <div class="form-group">
+    <label for="AddressAddress2_{{ address.id }}" class="form-label">{{ 'customer.addresses.address2' | t }}</label>
+    <input
+      type="text"
+      id="AddressAddress2_{{ address.id }}"
+      class="form-input"
+      name="address[address2]"
+      value="{{ address.address2 }}"
+      autocomplete="address-line2"
+    >
+  </div>
+  
+  <div class="address-form__row">
+    <div class="form-group">
+      <label for="AddressCity_{{ address.id }}" class="form-label">{{ 'customer.addresses.city' | t }}</label>
+      <input
+        type="text"
+        id="AddressCity_{{ address.id }}"
+        class="form-input"
+        name="address[city]"
+        value="{{ address.city }}"
+        autocomplete="address-level2"
+        required
+      >
+    </div>
+    
+    <div class="form-group">
+      <label for="AddressZip_{{ address.id }}" class="form-label">{{ 'customer.addresses.zip' | t }}</label>
+      <input
+        type="text"
+        id="AddressZip_{{ address.id }}"
+        class="form-input"
+        name="address[zip]"
+        value="{{ address.zip }}"
+        autocomplete="postal-code"
+        required
+      >
+    </div>
+  </div>
+  
+  <div class="address-form__row">
+    <div class="form-group">
+      <label for="AddressCountry_{{ address.id }}" class="form-label">{{ 'customer.addresses.country' | t }}</label>
+      <select
+        id="AddressCountry_{{ address.id }}"
+        class="form-select"
+        name="address[country]"
+        data-address-country
+        data-default="{{ address.country }}"
+        autocomplete="country"
+        required
+      >
+        {{ all_country_option_tags }}
+      </select>
+    </div>
+    
+    <div class="form-group" data-province-container>
+      <label for="AddressProvince_{{ address.id }}" class="form-label">{{ 'customer.addresses.province' | t }}</label>
+      <select
+        id="AddressProvince_{{ address.id }}"
+        class="form-select"
+        name="address[province]"
+        data-address-province
+        data-default="{{ address.province }}"
+        autocomplete="address-level1"
+      >
+      </select>
+    </div>
+  </div>
+  
+  <div class="form-group">
+    <label for="AddressPhone_{{ address.id }}" class="form-label">{{ 'customer.addresses.phone' | t }}</label>
+    <input
+      type="tel"
+      id="AddressPhone_{{ address.id }}"
+      class="form-input"
+      name="address[phone]"
+      value="{{ address.phone }}"
+      autocomplete="tel"
+    >
+  </div>
+  
+  <div class="form-group">
+    <label class="form-checkbox">
+      <input
+        type="checkbox"
+        name="address[default]"
+        value="1"
+        {% if address == customer.default_address %}checked{% endif %}
+      >
+      <span>{{ 'customer.addresses.set_default' | t }}</span>
+    </label>
+  </div>
+</div>
+
+<style>
+  .address-form__row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-4);
+  }
+  
+  @media screen and (max-width: 480px) {
+    .address-form__row {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  if (typeof Shopify === 'undefined') Shopify = {};
+  
+  Shopify.CountryProvinceSelector = function(countrySelect, provinceSelect, options) {
+    this.countrySelect = typeof countrySelect === 'string' ? document.getElementById(countrySelect) : countrySelect;
+    this.provinceSelect = typeof provinceSelect === 'string' ? document.getElementById(provinceSelect) : provinceSelect;
+    this.provinceContainer = options.hideElement ? document.querySelector(options.hideElement) : this.provinceSelect.parentNode;
+    
+    this.countrySelect.addEventListener('change', this.countryChange.bind(this));
+    this.initCountry();
+  };
+  
+  Shopify.CountryProvinceSelector.prototype = {
+    initCountry: function() {
+      var countryDefault = this.countrySelect.getAttribute('data-default');
+      if (countryDefault) {
+        this.countrySelect.value = countryDefault;
+      }
+      this.countryChange();
+    },
+    
+    countryChange: function() {
+      var option = this.countrySelect.options[this.countrySelect.selectedIndex];
+      var provinces = option.getAttribute('data-provinces');
+      
+      if (provinces) {
+        provinces = JSON.parse(provinces);
+        
+        if (provinces.length === 0) {
+          this.provinceContainer.style.display = 'none';
+        } else {
+          this.provinceContainer.style.display = '';
+          
+          this.provinceSelect.innerHTML = '';
+          provinces.forEach(function(province) {
+            var opt = document.createElement('option');
+            opt.value = province[0];
+            opt.textContent = province[1];
+            this.provinceSelect.appendChild(opt);
+          }.bind(this));
+          
+          var provinceDefault = this.provinceSelect.getAttribute('data-default');
+          if (provinceDefault) {
+            this.provinceSelect.value = provinceDefault;
+          }
+        }
+      } else {
+        this.provinceContainer.style.display = 'none';
+      }
+    }
+  };
+  
+  // Initialize country/province selectors
+  document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('[data-address-country]').forEach(function(countrySelect) {
+      var addressId = countrySelect.id.replace('AddressCountry_', '');
+      var provinceSelect = document.getElementById('AddressProvince_' + addressId);
+      var provinceContainer = provinceSelect ? provinceSelect.closest('[data-province-container]') : null;
+      
+      if (provinceSelect) {
+        new Shopify.CountryProvinceSelector(
+          countrySelect,
+          provinceSelect,
+          { hideElement: '[data-province-container]' }
+        );
+      }
+    });
+  });
+</script>

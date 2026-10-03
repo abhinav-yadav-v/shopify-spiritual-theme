@@ -1,0 +1,441 @@
+{%- comment -%}
+  Customer Order Section
+  Displays detailed order information.
+{%- endcomment -%}
+
+<section class="main-order section">
+  <div class="container">
+    <div class="main-order__header">
+      <a href="{{ routes.account_url }}" class="main-order__back">
+        {% render 'icon', name: 'arrow-left', size: 16 %}
+        {{ 'customer.order.back_to_account' | t }}
+      </a>
+      <h1 class="main-order__title">{{ 'customer.order.title' | t: name: order.name }}</h1>
+      <p class="main-order__date">{{ 'customer.order.placed_on' | t }} {{ order.created_at | date: format: 'date' }}</p>
+    </div>
+    
+    <div class="main-order__layout">
+      {%- comment -%} Order Items {%- endcomment -%}
+      <div class="main-order__content">
+        <div class="main-order__section main-order__items">
+          <h2 class="main-order__section-title">{{ 'customer.order.items' | t }}</h2>
+          <table class="main-order__table">
+            <thead>
+              <tr>
+                <th>{{ 'customer.order.product' | t }}</th>
+                <th>{{ 'customer.order.sku' | t }}</th>
+                <th>{{ 'customer.order.price' | t }}</th>
+                <th>{{ 'customer.order.quantity' | t }}</th>
+                <th>{{ 'customer.order.total' | t }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {%- for line_item in order.line_items -%}
+                <tr>
+                  <td class="main-order__product-cell">
+                    <div class="main-order__product">
+                      {%- if line_item.image -%}
+                        <img
+                          src="{{ line_item.image | image_url: width: 100 }}"
+                          alt="{{ line_item.title | escape }}"
+                          width="50"
+                          height="50"
+                          loading="lazy"
+                          class="main-order__product-image"
+                        >
+                      {%- endif -%}
+                      <div>
+                        <a href="{{ line_item.product.url }}" class="main-order__product-title">
+                          {{ line_item.title }}
+                        </a>
+                        {%- unless line_item.variant.title == 'Default Title' -%}
+                          <p class="main-order__product-variant">{{ line_item.variant.title }}</p>
+                        {%- endunless -%}
+                      </div>
+                    </div>
+                  </td>
+                  <td>{{ line_item.sku | default: '-' }}</td>
+                  <td>{{ line_item.original_price | money }}</td>
+                  <td>{{ line_item.quantity }}</td>
+                  <td>{{ line_item.original_line_price | money }}</td>
+                </tr>
+              {%- endfor -%}
+            </tbody>
+          </table>
+        </div>
+        
+        {%- comment -%} Order Status Timeline {%- endcomment -%}
+        {%- if order.fulfillments.size > 0 -%}
+          <div class="main-order__section">
+            <h2 class="main-order__section-title">{{ 'customer.order.fulfillment' | t }}</h2>
+            {%- for fulfillment in order.fulfillments -%}
+              <div class="main-order__fulfillment">
+                <p class="main-order__fulfillment-date">
+                  {{ 'customer.order.fulfilled_on' | t }} {{ fulfillment.created_at | date: format: 'date' }}
+                </p>
+                {%- if fulfillment.tracking_number -%}
+                  <p class="main-order__tracking">
+                    {{ 'customer.order.tracking_number' | t }}:
+                    {%- if fulfillment.tracking_url -%}
+                      <a href="{{ fulfillment.tracking_url }}" target="_blank" rel="noopener">
+                        {{ fulfillment.tracking_number }}
+                      </a>
+                    {%- else -%}
+                      {{ fulfillment.tracking_number }}
+                    {%- endif -%}
+                  </p>
+                {%- endif -%}
+              </div>
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+      </div>
+      
+      {%- comment -%} Order Summary Sidebar {%- endcomment -%}
+      <aside class="main-order__sidebar">
+        {%- comment -%} Order Summary {%- endcomment -%}
+        <div class="main-order__summary-box">
+          <h2 class="main-order__summary-title">{{ 'customer.order.summary' | t }}</h2>
+          
+          <div class="main-order__summary-row">
+            <span>{{ 'customer.order.subtotal' | t }}</span>
+            <span>{{ order.line_items_subtotal_price | money }}</span>
+          </div>
+          
+          {%- for discount in order.discounts -%}
+            <div class="main-order__summary-row main-order__summary-row--discount">
+              <span>{{ discount.code }}</span>
+              <span>-{{ discount.savings | money }}</span>
+            </div>
+          {%- endfor -%}
+          
+          {%- for shipping_method in order.shipping_methods -%}
+            <div class="main-order__summary-row">
+              <span>{{ 'customer.order.shipping' | t }} ({{ shipping_method.title }})</span>
+              <span>{{ shipping_method.price | money }}</span>
+            </div>
+          {%- endfor -%}
+          
+          {%- for tax_line in order.tax_lines -%}
+            <div class="main-order__summary-row">
+              <span>{{ tax_line.title }}</span>
+              <span>{{ tax_line.price | money }}</span>
+            </div>
+          {%- endfor -%}
+          
+          <div class="main-order__summary-row main-order__summary-total">
+            <span>{{ 'customer.order.total' | t }}</span>
+            <span>{{ order.total_price | money }}</span>
+          </div>
+        </div>
+        
+        {%- comment -%} Status Badges {%- endcomment -%}
+        <div class="main-order__status-box">
+          <div class="main-order__status-item">
+            <span class="main-order__status-label">{{ 'customer.order.payment_status' | t }}</span>
+            <span class="main-order__status main-order__status--{{ order.financial_status }}">
+              {{ order.financial_status_label }}
+            </span>
+          </div>
+          <div class="main-order__status-item">
+            <span class="main-order__status-label">{{ 'customer.order.fulfillment_status' | t }}</span>
+            <span class="main-order__status main-order__status--{{ order.fulfillment_status }}">
+              {{ order.fulfillment_status_label | default: 'Unfulfilled' }}
+            </span>
+          </div>
+        </div>
+        
+        {%- comment -%} Addresses {%- endcomment -%}
+        <div class="main-order__addresses">
+          <div class="main-order__address">
+            <h3 class="main-order__address-title">{{ 'customer.order.billing_address' | t }}</h3>
+            <address class="main-order__address-content">
+              {{ order.billing_address | format_address }}
+            </address>
+          </div>
+          
+          {%- if order.shipping_address -%}
+            <div class="main-order__address">
+              <h3 class="main-order__address-title">{{ 'customer.order.shipping_address' | t }}</h3>
+              <address class="main-order__address-content">
+                {{ order.shipping_address | format_address }}
+              </address>
+            </div>
+          {%- endif -%}
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<style>
+  .main-order__header {
+    margin-bottom: var(--spacing-8);
+  }
+  
+  .main-order__back {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    color: var(--color-gray-600);
+    font-size: var(--font-size-sm);
+    margin-bottom: var(--spacing-4);
+  }
+  
+  .main-order__back:hover {
+    color: var(--color-primary);
+  }
+  
+  .main-order__title {
+    margin-bottom: var(--spacing-2);
+  }
+  
+  .main-order__date {
+    color: var(--color-gray-500);
+    margin-bottom: 0;
+  }
+  
+  .main-order__layout {
+    display: grid;
+    gap: var(--spacing-8);
+  }
+  
+  @media screen and (min-width: 1024px) {
+    .main-order__layout {
+      grid-template-columns: 1fr 350px;
+    }
+  }
+  
+  .main-order__section {
+    background-color: var(--color-white);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-6);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: var(--spacing-6);
+  }
+  
+  .main-order__section-title {
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--spacing-4);
+    padding-bottom: var(--spacing-4);
+    border-bottom: 1px solid var(--color-gray-200);
+  }
+  
+  /* Order Table */
+  .main-order__table {
+    width: 100%;
+    font-size: var(--font-size-sm);
+  }
+  
+  .main-order__table th,
+  .main-order__table td {
+    padding: var(--spacing-3);
+    text-align: left;
+    border-bottom: 1px solid var(--color-gray-100);
+  }
+  
+  .main-order__table th {
+    font-weight: 600;
+    color: var(--color-gray-600);
+  }
+  
+  .main-order__product {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-3);
+  }
+  
+  .main-order__product-image {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: var(--border-radius-md);
+  }
+  
+  .main-order__product-title {
+    font-weight: 600;
+    color: var(--color-text);
+  }
+  
+  .main-order__product-title:hover {
+    color: var(--color-primary);
+  }
+  
+  .main-order__product-variant {
+    font-size: var(--font-size-xs);
+    color: var(--color-gray-500);
+    margin: 0;
+  }
+  
+  /* Fulfillment */
+  .main-order__fulfillment {
+    padding: var(--spacing-4);
+    background-color: var(--color-gray-50);
+    border-radius: var(--border-radius-md);
+  }
+  
+  .main-order__fulfillment-date {
+    font-weight: 600;
+    margin-bottom: var(--spacing-2);
+  }
+  
+  .main-order__tracking a {
+    color: var(--color-primary);
+  }
+  
+  /* Sidebar */
+  .main-order__summary-box,
+  .main-order__status-box {
+    background-color: var(--color-white);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-6);
+    box-shadow: var(--shadow-sm);
+    margin-bottom: var(--spacing-4);
+  }
+  
+  .main-order__summary-title {
+    font-size: var(--font-size-lg);
+    margin-bottom: var(--spacing-4);
+    padding-bottom: var(--spacing-4);
+    border-bottom: 1px solid var(--color-gray-200);
+  }
+  
+  .main-order__summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: var(--spacing-2) 0;
+    font-size: var(--font-size-sm);
+  }
+  
+  .main-order__summary-row--discount {
+    color: var(--color-deep-red);
+  }
+  
+  .main-order__summary-total {
+    font-weight: 700;
+    font-size: var(--font-size-base);
+    padding-top: var(--spacing-4);
+    margin-top: var(--spacing-2);
+    border-top: 1px solid var(--color-gray-200);
+  }
+  
+  .main-order__status-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: var(--spacing-3) 0;
+    border-bottom: 1px solid var(--color-gray-100);
+  }
+  
+  .main-order__status-item:last-child {
+    border-bottom: none;
+  }
+  
+  .main-order__status-label {
+    font-size: var(--font-size-sm);
+    color: var(--color-gray-600);
+  }
+  
+  .main-order__status {
+    display: inline-block;
+    padding: var(--spacing-1) var(--spacing-2);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    border-radius: var(--border-radius-sm);
+    text-transform: capitalize;
+  }
+  
+  .main-order__status--paid {
+    background-color: #D1FAE5;
+    color: #059669;
+  }
+  
+  .main-order__status--pending {
+    background-color: #FEF3C7;
+    color: #D97706;
+  }
+  
+  .main-order__status--fulfilled {
+    background-color: #D1FAE5;
+    color: #059669;
+  }
+  
+  .main-order__status--unfulfilled,
+  .main-order__status-- {
+    background-color: #FEE2E2;
+    color: #DC2626;
+  }
+  
+  /* Addresses */
+  .main-order__addresses {
+    display: grid;
+    gap: var(--spacing-4);
+  }
+  
+  .main-order__address {
+    background-color: var(--color-white);
+    border-radius: var(--border-radius-lg);
+    padding: var(--spacing-4);
+    box-shadow: var(--shadow-sm);
+  }
+  
+  .main-order__address-title {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    margin-bottom: var(--spacing-2);
+    color: var(--color-gray-600);
+  }
+  
+  .main-order__address-content {
+    font-style: normal;
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-relaxed);
+  }
+  
+  /* Mobile responsiveness */
+  @media screen and (max-width: 767px) {
+    .main-order__table {
+      display: block;
+    }
+    
+    .main-order__table thead {
+      display: none;
+    }
+    
+    .main-order__table tbody,
+    .main-order__table tr,
+    .main-order__table td {
+      display: block;
+    }
+    
+    .main-order__table tr {
+      padding: var(--spacing-4) 0;
+      border-bottom: 1px solid var(--color-gray-200);
+    }
+    
+    .main-order__table td {
+      padding: var(--spacing-1) 0;
+      border: none;
+    }
+    
+    .main-order__table td:before {
+      content: attr(data-label);
+      font-weight: 600;
+      margin-right: var(--spacing-2);
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Customer Order",
+  "tag": "section",
+  "class": "main-order-section",
+  "settings": [],
+  "presets": [
+    {
+      "name": "Customer Order"
+    }
+  ]
+}
+{% endschema %}

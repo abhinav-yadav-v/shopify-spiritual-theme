@@ -1,0 +1,24 @@
+{
+  "project_type": "Shopify Online Store 2.0 theme",
+  "language": "Liquid, JSON, CSS, JavaScript",
+  "build_system": "Shopify CLI (shopify theme dev/check), no build step required - static files served directly",
+  "test_framework": "Shopify CLI theme check (shopify theme check) for linting and validation",
+  "build_command": "No build required - Shopify themes are static files",
+  "test_command": "shopify theme check (requires Shopify CLI installed) OR manual JSON validation",
+  "verification_instructions": "1. Validate all JSON files with a JSON parser. 2. Ensure theme.liquid exists in layout/. 3. Verify all templates reference existing sections. 4. Check settings_schema.json is valid array. 5. Theme should be zippable and uploadable to Shopify admin.",
+  "snapshot_or_generated_files": null,
+  "environment_constraints": "Workspace is c:\\xampp\\htdocs\\shopify. All files must be created here. Theme must follow exact Shopify directory structure with no nested subdirectories beyond /templates/customers/.",
+  "contribution_requirements": "All JSON must be valid. All Liquid syntax must be correct. Section schemas must define proper settings and blocks. Settings_data.json must provide sample values for preview.",
+  "key_patterns": "Shopify 2.0 uses JSON templates that reference sections. Sections have {% schema %} tags with settings/blocks. Snippets are reusable Liquid partials rendered with {% render %}. Assets are referenced with {{ 'file.css' | asset_url }}. Settings accessed via {{ settings.setting_id }} globally or {{ section.settings.id }} in sections.",
+  "relevant_files": [
+    "layout/theme.liquid - main layout wrapper",
+    "config/settings_schema.json - theme-wide settings definition",
+    "config/settings_data.json - current setting values",
+    "templates/*.json - page templates referencing sections",
+    "sections/*.liquid - customizable section files with schemas",
+    "snippets/*.liquid - reusable partials",
+    "assets/*.css, *.js - stylesheets and scripts",
+    "locales/en.default.json - English translations"
+  ],
+  "directory_structure": "Required Shopify theme structure:\n/assets - CSS, JS, images (flat, no subdirs)\n/config - settings_schema.json, settings_data.json\n/layout - theme.liquid (required), plus optional layouts\n/locales - en.default.json and other locale files\n/sections - all section .liquid files\n/snippets - reusable .liquid partials\n/templates - JSON templates for pages\n/templates/customers - customer account templates"
+}

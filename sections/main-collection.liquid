@@ -5,7 +5,7 @@
 
 {%- liquid
   assign products_per_page = section.settings.products_per_page | default: 12
-  assign columns_desktop = section.settings.columns_desktop | default: 4
+  assign columns_desktop = section.settings.columns_desktop | default: '4'
   assign show_filters = section.settings.show_filters
   assign show_sort = section.settings.show_sort
   assign default_sort = section.settings.default_sort | default: 'best-selling'
@@ -573,13 +573,14 @@
       "default": "best-selling"
     },
     {
-      "type": "range",
+      "type": "select",
       "id": "columns_desktop",
       "label": "Desktop columns",
-      "min": 3,
-      "max": 4,
-      "step": 1,
-      "default": 4
+      "options": [
+        { "value": "3", "label": "3" },
+        { "value": "4", "label": "4" }
+      ],
+      "default": "4"
     }
   ],
   "presets": [

@@ -1,0 +1,7 @@
+{
+  "task_id": "task-shopify-spiritual-theme",
+  "task_description": "Create a production-ready Shopify 2.0 theme for a Hindu spiritual wearables shop (Rudraksha, Karungali bracelets, spiritual jewelry) inspired by divymukhi.in. Includes all required sections, templates, settings, and assets for a complete installable theme.",
+  "status": "pending",
+  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003", "FEAT-004", "FEAT-005"],
+  "blocked_reason": null
+}

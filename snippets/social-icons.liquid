@@ -1,0 +1,145 @@
+{%- comment -%}
+  Renders social media icon links from theme settings.
+  
+  Parameters:
+  - class: string (optional) - Additional CSS classes
+  - size: number (optional) - Icon size, default 24
+  - show_labels: boolean (optional) - Show text labels, default false
+  
+  Usage:
+  {% render 'social-icons' %}
+  {% render 'social-icons', size: 20, class: 'footer-social' %}
+{%- endcomment -%}
+
+{%- liquid
+  assign wrapper_class = class | default: ''
+  assign icon_size = size | default: 24
+  assign show_labels = show_labels | default: false
+  
+  # Build array of social links
+  assign has_social = false
+-%}
+
+{%- capture social_links -%}
+  {%- if settings.social_facebook_link != blank -%}
+    {%- assign has_social = true -%}
+    <li class="social-icons__item">
+      <a href="{{ settings.social_facebook_link }}" class="social-icons__link social-icons__link--facebook" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
+        {% render 'icon', name: 'facebook', size: icon_size %}
+        {%- if show_labels -%}<span class="social-icons__label">Facebook</span>{%- endif -%}
+      </a>
+    </li>
+  {%- endif -%}
+  
+  {%- if settings.social_instagram_link != blank -%}
+    {%- assign has_social = true -%}
+    <li class="social-icons__item">
+      <a href="{{ settings.social_instagram_link }}" class="social-icons__link social-icons__link--instagram" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+        {% render 'icon', name: 'instagram', size: icon_size %}
+        {%- if show_labels -%}<span class="social-icons__label">Instagram</span>{%- endif -%}
+      </a>
+    </li>
+  {%- endif -%}
+  
+  {%- if settings.social_twitter_link != blank -%}
+    {%- assign has_social = true -%}
+    <li class="social-icons__item">
+      <a href="{{ settings.social_twitter_link }}" class="social-icons__link social-icons__link--twitter" target="_blank" rel="noopener noreferrer" aria-label="Twitter / X">
+        {% render 'icon', name: 'twitter', size: icon_size %}
+        {%- if show_labels -%}<span class="social-icons__label">Twitter</span>{%- endif -%}
+      </a>
+    </li>
+  {%- endif -%}
+  
+  {%- if settings.social_youtube_link != blank -%}
+    {%- assign has_social = true -%}
+    <li class="social-icons__item">
+      <a href="{{ settings.social_youtube_link }}" class="social-icons__link social-icons__link--youtube" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
+        {% render 'icon', name: 'youtube', size: icon_size %}
+        {%- if show_labels -%}<span class="social-icons__label">YouTube</span>{%- endif -%}
+      </a>
+    </li>
+  {%- endif -%}
+  
+  {%- if settings.social_pinterest_link != blank -%}
+    {%- assign has_social = true -%}
+    <li class="social-icons__item">
+      <a href="{{ settings.social_pinterest_link }}" class="social-icons__link social-icons__link--pinterest" target="_blank" rel="noopener noreferrer" aria-label="Pinterest">
+        {% render 'icon', name: 'pinterest', size: icon_size %}
+        {%- if show_labels -%}<span class="social-icons__label">Pinterest</span>{%- endif -%}
+      </a>
+    </li>
+  {%- endif -%}
+{%- endcapture -%}
+
+{%- if has_social -%}
+  <ul class="social-icons {{ wrapper_class }}" role="list">
+    {{ social_links }}
+  </ul>
+{%- endif -%}
+
+<style>
+  .social-icons {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-3);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .social-icons__item {
+    margin: 0;
+  }
+  
+  .social-icons__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    color: var(--color-text);
+    transition: color var(--transition-fast), transform var(--transition-fast);
+  }
+  
+  .social-icons__link:hover {
+    transform: translateY(-2px);
+  }
+  
+  .social-icons__link--facebook:hover {
+    color: #1877F2;
+  }
+  
+  .social-icons__link--instagram:hover {
+    color: #E4405F;
+  }
+  
+  .social-icons__link--twitter:hover {
+    color: #000000;
+  }
+  
+  .social-icons__link--youtube:hover {
+    color: #FF0000;
+  }
+  
+  .social-icons__link--pinterest:hover {
+    color: #BD081C;
+  }
+  
+  .social-icons__label {
+    font-size: var(--font-size-sm);
+  }
+  
+  /* Centered layout variant */
+  .social-icons--centered {
+    justify-content: center;
+  }
+  
+  /* Light variant (for dark backgrounds) */
+  .social-icons--light .social-icons__link {
+    color: var(--color-white);
+  }
+  
+  .social-icons--light .social-icons__link:hover {
+    opacity: 0.8;
+  }
+</style>

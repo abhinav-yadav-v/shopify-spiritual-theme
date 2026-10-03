@@ -1,0 +1,145 @@
+{%- comment -%}
+  Renders payment method icons.
+  
+  Parameters:
+  - class: string (optional) - Additional CSS classes for wrapper
+  - size: string (optional) - Icon size (small, medium, large), default medium
+  - show_all: boolean (optional) - Show all payment types or only enabled shop ones
+  
+  Usage:
+  {% render 'payment-icons' %}
+  {% render 'payment-icons', size: 'small', class: 'footer-payments' %}
+{%- endcomment -%}
+
+{%- liquid
+  assign wrapper_class = class | default: ''
+  assign icon_size = size | default: 'medium'
+  assign show_all_payments = show_all | default: true
+-%}
+
+<div class="payment-icons {{ wrapper_class }} payment-icons--{{ icon_size }}">
+  <span class="visually-hidden">{{ 'general.payment_methods' | t | default: 'We accept' }}</span>
+  
+  <ul class="payment-icons__list" role="list" aria-label="Payment methods">
+    {%- comment -%} Visa {%- endcomment -%}
+    <li class="payment-icons__item">
+      <svg class="payment-icon payment-icon--visa" viewBox="0 0 38 24" aria-label="Visa" role="img">
+        <rect width="38" height="24" rx="3" fill="#1A1F71"/>
+        <path d="M16.539 16.505h-2.165l1.353-8.51h2.165l-1.353 8.51zm8.785-8.306c-.429-.172-.1.1-.257-.443h-1.89l-.114.632c.717.2 1.385.5 1.976.885l1.66-6.497h2.072l-3.061 8.51H22.75l-.426-2.087zm-4.912.204c0-.376.312-.496 1.015-.496.638 0 1.271.11 1.865.323l.278-1.698a5.836 5.836 0 00-2.127-.394c-2.223 0-3.793 1.185-3.808 2.887-.016 1.257 1.123 1.958 1.98 2.375.878.427 1.173.7 1.169 1.082-.006.584-.7.85-1.348.85-.901 0-1.38-.132-2.119-.458l-.29.1.313 1.931c.527.204 1.503.381 2.516.39 2.365 0 3.904-1.168 3.92-2.99.008-.996-.594-1.754-1.898-2.378-.79-.405-1.275-.675-1.27-1.085.005-.363.41-.753 1.294-.753a3.9 3.9 0 011.69.335l.202.101.306-1.869a4.656 4.656 0 00-1.688-.353zm-9.61 8.102l.28-1.647-.622-.148c-.917-.22-1.076-.366-1.076-.771 0-.384.332-.624 1.042-.624.644.006 1.28.115 1.883.322l.19.083.287-1.756a5.392 5.392 0 00-2.017-.369c-2.21 0-3.763 1.188-3.778 2.888-.01.841.598 1.476 1.626 1.92l-.5 2.102h2.685z" fill="#fff"/>
+        <path d="M13.477 8.044l-2.137 5.805-.228-1.163-.763-3.89c-.13-.534-.514-.736-1.016-.752H6.06l-.037.193c.895.23 1.701.58 2.397 1.028l1.975 7.24h2.378l3.535-8.461h-2.83z" fill="#fff"/>
+      </svg>
+    </li>
+    
+    {%- comment -%} Mastercard {%- endcomment -%}
+    <li class="payment-icons__item">
+      <svg class="payment-icon payment-icon--mastercard" viewBox="0 0 38 24" aria-label="Mastercard" role="img">
+        <rect width="38" height="24" rx="3" fill="#000"/>
+        <circle cx="15" cy="12" r="7" fill="#EB001B"/>
+        <circle cx="23" cy="12" r="7" fill="#F79E1B"/>
+        <path d="M19 7.3a6.977 6.977 0 012.6 4.7 6.977 6.977 0 01-2.6 4.7 6.977 6.977 0 01-2.6-4.7A6.977 6.977 0 0119 7.3z" fill="#FF5F00"/>
+      </svg>
+    </li>
+    
+    {%- comment -%} American Express {%- endcomment -%}
+    <li class="payment-icons__item">
+      <svg class="payment-icon payment-icon--amex" viewBox="0 0 38 24" aria-label="American Express" role="img">
+        <rect width="38" height="24" rx="3" fill="#006FCF"/>
+        <path d="M10.53 16.5l-2.34-5.94H6l2.88 7.32h1.3l2.86-7.32h-2.17l-2.34 5.94zm6.6-2.64h3.17v-1.38h-3.17v-1.3h3.36v-1.38h-4.98v7.32h5.1v-1.38h-3.48v-1.88zm9.98-4.06l-1.68 3.24-1.66-3.24h-2.04l2.82 4.86v2.46h1.8v-2.46l2.82-4.86h-2.06z" fill="#fff"/>
+        <path d="M27.22 17.88h1.78l2.1-5.06 2.1 5.06h1.8l-3.18-7.68h-1.44l-3.16 7.68z" fill="#fff"/>
+      </svg>
+    </li>
+    
+    {%- comment -%} PayPal {%- endcomment -%}
+    <li class="payment-icons__item">
+      <svg class="payment-icon payment-icon--paypal" viewBox="0 0 38 24" aria-label="PayPal" role="img">
+        <rect width="38" height="24" rx="3" fill="#fff" stroke="#D9D9D9" stroke-width=".5"/>
+        <path d="M23.333 8.963c.26 1.632-.934 3.276-2.954 3.276h-.352a.416.416 0 00-.41.351l-.354 2.242-.1.635a.217.217 0 00.214.25h1.507c.18 0 .333-.13.361-.306l.015-.077.286-1.816.018-.099a.364.364 0 01.36-.306h.227c1.468 0 2.617-.596 2.953-2.32.14-.72.068-1.323-.304-1.746a1.451 1.451 0 00-.467-.284z" fill="#179BD7"/>
+        <path d="M22.86 8.77a3.267 3.267 0 00-.407-.09 5.179 5.179 0 00-.825-.06h-2.498a.363.363 0 00-.36.306l-.532 3.371-.016.098a.416.416 0 01.41-.35h.853c1.676 0 2.988-.681 3.371-2.65.011-.058.02-.115.028-.17a2.19 2.19 0 00-.024-.455z" fill="#222D65"/>
+        <path d="M15.49 8.925a.364.364 0 01.359-.307h2.278c.27 0 .522.018.753.054.066.01.13.022.193.035.064.013.126.028.186.045.03.008.06.017.089.027.117.037.225.081.324.134.116-.74 0-1.243-.4-1.7-.44-.502-1.236-.717-2.254-.717h-2.958a.419.419 0 00-.413.352l-1.232 7.814a.25.25 0 00.248.29h1.803l.453-2.87.571-3.157z" fill="#253B80"/>
+      </svg>
+    </li>
+    
+    {%- comment -%} UPI (India specific) {%- endcomment -%}
+    <li class="payment-icons__item">
+      <svg class="payment-icon payment-icon--upi" viewBox="0 0 38 24" aria-label="UPI" role="img">
+        <rect width="38" height="24" rx="3" fill="#fff" stroke="#D9D9D9" stroke-width=".5"/>
+        <path d="M9 7h4v10H9V7z" fill="#097939"/>
+        <path d="M13 7h4v10h-4V7z" fill="#ED752E"/>
+        <text x="21" y="15" font-family="Arial, sans-serif" font-size="7" font-weight="bold" fill="#097939">UPI</text>
+      </svg>
+    </li>
+    
+    {%- comment -%} RuPay (India specific) {%- endcomment -%}
+    <li class="payment-icons__item">
+      <svg class="payment-icon payment-icon--rupay" viewBox="0 0 38 24" aria-label="RuPay" role="img">
+        <rect width="38" height="24" rx="3" fill="#fff" stroke="#D9D9D9" stroke-width=".5"/>
+        <path d="M6 8h6v2H6V8z" fill="#097939"/>
+        <path d="M12 8h4v2h-4V8z" fill="#F37021"/>
+        <path d="M6 12h10v2H6v-2z" fill="#097939"/>
+        <text x="18" y="14" font-family="Arial, sans-serif" font-size="6" font-weight="bold" fill="#1A1A6C">RuPay</text>
+      </svg>
+    </li>
+  </ul>
+</div>
+
+<style>
+  .payment-icons {
+    display: flex;
+    align-items: center;
+  }
+  
+  .payment-icons__list {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-2);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .payment-icons__item {
+    margin: 0;
+  }
+  
+  .payment-icon {
+    display: block;
+  }
+  
+  /* Size variants */
+  .payment-icons--small .payment-icon {
+    width: 32px;
+    height: 20px;
+  }
+  
+  .payment-icons--medium .payment-icon {
+    width: 38px;
+    height: 24px;
+  }
+  
+  .payment-icons--large .payment-icon {
+    width: 50px;
+    height: 32px;
+  }
+  
+  /* Grayscale variant */
+  .payment-icons--grayscale .payment-icon {
+    filter: grayscale(100%);
+    opacity: 0.7;
+    transition: filter var(--transition-fast), opacity var(--transition-fast);
+  }
+  
+  .payment-icons--grayscale .payment-icon:hover {
+    filter: grayscale(0);
+    opacity: 1;
+  }
+  
+  /* Centered variant */
+  .payment-icons--centered {
+    justify-content: center;
+  }
+  
+  .payment-icons--centered .payment-icons__list {
+    justify-content: center;
+  }
+</style>

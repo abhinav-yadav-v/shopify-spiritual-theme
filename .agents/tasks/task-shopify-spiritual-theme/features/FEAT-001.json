@@ -1,0 +1,39 @@
+{
+  "id": "FEAT-001",
+  "type": "feat",
+  "description": "Create the Shopify theme foundation: directory structure, theme.liquid layout, config files (settings_schema.json with all theme-wide setting groups, settings_data.json with defaults), locales, and core CSS/JS assets. This establishes the complete scaffold that all subsequent features build upon.",
+  "status": "completed",
+  "steps": [
+    "Create all required directories: assets/, config/, layout/, locales/, sections/, snippets/, templates/, templates/customers/",
+    "Create layout/theme.liquid with complete HTML5 structure including: doctype, html lang attribute, head with charset/viewport/title/meta tags, CSS asset includes, content_for_header, body with main content area using {{ content_for_layout }}, JS asset includes. Include section groups for header ({% sections 'header-group' %}) and footer ({% sections 'footer-group' %}).",
+    "Create config/settings_schema.json as JSON array with these groups: (1) theme_info object with theme metadata, (2) Colors group with settings for primary_color (#FF6B00 default), secondary_color (#8B0000 default), accent_color (#D4AF37 default), background_color (#FFF8F0 default), text_color (#333333 default), (3) Typography group with heading_font and body_font font_picker settings, (4) Layout group with max_content_width range setting, (5) Social Media group with social_facebook_link, social_instagram_link, social_twitter_link, social_youtube_link, social_pinterest_link URL settings, (6) Favicon group with favicon image_picker setting.",
+    "Create config/settings_data.json with 'current' object containing default values for all settings defined in schema, plus empty 'presets' object.",
+    "Create locales/en.default.json with translations for: general (skip_to_content, search, menu, cart, account, close), products (add_to_cart, sold_out, quantity, price, sale_price, view_details), collections (filter, sort, items_count, no_products), cart (title, empty, checkout, subtotal, remove), customer (login, logout, register, orders, addresses), accessibility labels, and section-specific strings.",
+    "Create assets/theme.css with CSS custom properties using theme settings via Liquid, base resets, typography scales, responsive grid system, utility classes, button styles, form styles, and component foundations for cards/badges/overlays. Include spiritual color palette variables.",
+    "Create assets/theme.js with vanilla JS for: mobile menu toggle, sticky header behavior, lazy loading images, smooth scroll, quantity selector +/- buttons, and utility functions. Use DOMContentLoaded pattern.",
+    "Create snippets/icon.liquid that renders SVG icons by name parameter (cart, search, user, menu, close, chevron-down, chevron-right, star, star-half, check, truck, shield, phone, heart).",
+    "Create snippets/meta-tags.liquid for SEO meta tags including og:tags and twitter cards.",
+    "Create snippets/product-card.liquid for rendering product in grid with image, title, price, sale badge, vendor, and link.",
+    "Create snippets/rating-stars.liquid for displaying star ratings from 0-5 including half stars.",
+    "Create snippets/social-icons.liquid for rendering social media icon links from theme settings.",
+    "Create snippets/payment-icons.liquid for rendering payment method icons (Visa, Mastercard, Amex, PayPal, UPI, RuPay)."
+  ],
+  "acceptance_criteria": [
+    "All 8 required directories exist with correct names",
+    "layout/theme.liquid contains valid Liquid syntax with HTML5 structure and section group references",
+    "config/settings_schema.json is valid JSON array with theme_info and all 5 setting groups",
+    "config/settings_data.json has 'current' object with values matching schema settings",
+    "locales/en.default.json is valid JSON with all translation keys organized by namespace",
+    "assets/theme.css defines CSS custom properties and core styles",
+    "assets/theme.js initializes without JavaScript errors",
+    "All 7 snippets exist and use valid Liquid syntax with proper parameter handling"
+  ],
+  "verification": [
+    "Parse all JSON files to verify valid syntax: settings_schema.json, settings_data.json, en.default.json",
+    "Check that layout/theme.liquid exists and contains {{ content_for_layout }} and {% sections 'header-group' %} and {% sections 'footer-group' %}",
+    "Verify all snippets exist and contain valid Liquid (no unclosed tags)",
+    "Verify assets/theme.css and assets/theme.js exist and are non-empty"
+  ],
+  "blocked_reason": null,
+  "findings": "Theme foundation fully implemented. All 8 directories created. theme.liquid includes section groups for header-group and footer-group. CSS includes spiritual color palette with saffron, maroon, gold, and cream. 6 JSON setting groups defined (theme_info, Colors, Typography, Layout, Social Media, Favicon). Locales include 7 namespaces (general, products, collections, cart, customer, accessibility, sections). All 6 core snippets ready (icon with 28 icons, meta-tags with JSON-LD, product-card, rating-stars, social-icons, payment-icons with UPI/RuPay for India)."
+}

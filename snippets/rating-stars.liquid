@@ -1,0 +1,110 @@
+{%- comment -%}
+  Renders star ratings from 0 to 5, including half stars.
+  
+  Parameters:
+  - rating: number (required) - Rating value from 0 to 5
+  - max_rating: number (optional) - Maximum rating value, default 5
+  - show_count: boolean (optional) - Show review count, default false
+  - count: number (optional) - Number of reviews to display
+  - size: number (optional) - Star icon size, default 16
+  
+  Usage:
+  {% render 'rating-stars', rating: 4.5 %}
+  {% render 'rating-stars', rating: 3, show_count: true, count: 42 %}
+{%- endcomment -%}
+
+{%- liquid
+  assign rating_value = rating | default: 0 | times: 1.0
+  assign max_rating_value = max_rating | default: 5
+  assign show_count = show_count | default: false
+  assign review_count = count | default: 0
+  assign star_size = size | default: 16
+  
+  # Clamp rating between 0 and max
+  if rating_value < 0
+    assign rating_value = 0
+  elsif rating_value > max_rating_value
+    assign rating_value = max_rating_value
+  endif
+  
+  # Calculate full, half, and empty stars
+  assign full_stars = rating_value | floor
+  assign decimal_part = rating_value | minus: full_stars
+  
+  assign has_half_star = false
+  if decimal_part >= 0.25 and decimal_part < 0.75
+    assign has_half_star = true
+  elsif decimal_part >= 0.75
+    assign full_stars = full_stars | plus: 1
+  endif
+  
+  assign empty_stars = max_rating_value | minus: full_stars
+  if has_half_star
+    assign empty_stars = empty_stars | minus: 1
+  endif
+-%}
+
+<div class="rating-stars" role="img" aria-label="{{ 'accessibility.star_rating' | t: rating: rating_value }}">
+  <div class="rating-stars__icons" aria-hidden="true">
+    {%- comment -%} Full stars {%- endcomment -%}
+    {%- for i in (1..full_stars) -%}
+      <span class="rating-stars__star rating-stars__star--full">
+        {% render 'icon', name: 'star', size: star_size %}
+      </span>
+    {%- endfor -%}
+    
+    {%- comment -%} Half star {%- endcomment -%}
+    {%- if has_half_star -%}
+      <span class="rating-stars__star rating-stars__star--half">
+        {% render 'icon', name: 'star-half', size: star_size %}
+      </span>
+    {%- endif -%}
+    
+    {%- comment -%} Empty stars {%- endcomment -%}
+    {%- for i in (1..empty_stars) -%}
+      <span class="rating-stars__star rating-stars__star--empty">
+        {% render 'icon', name: 'star-empty', size: star_size %}
+      </span>
+    {%- endfor -%}
+  </div>
+  
+  {%- if show_count and review_count > 0 -%}
+    <span class="rating-stars__count">({{ review_count }})</span>
+  {%- endif -%}
+</div>
+
+<style>
+  .rating-stars {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+  }
+  
+  .rating-stars__icons {
+    display: inline-flex;
+    align-items: center;
+    gap: 1px;
+  }
+  
+  .rating-stars__star {
+    display: inline-flex;
+    line-height: 1;
+  }
+  
+  .rating-stars__star--full {
+    color: var(--color-accent);
+  }
+  
+  .rating-stars__star--half {
+    color: var(--color-accent);
+  }
+  
+  .rating-stars__star--empty {
+    color: var(--color-gray-300);
+  }
+  
+  .rating-stars__count {
+    font-size: var(--font-size-sm);
+    color: var(--color-gray-500);
+  }
+</style>

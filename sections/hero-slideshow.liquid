@@ -1,0 +1,270 @@
+{%- comment -%}
+  Hero Slideshow Section
+  Full-width image slider with overlay text, autoplay, and navigation controls.
+{%- endcomment -%}
+
+{%- liquid
+  assign slideshow_id = 'Slideshow-' | append: section.id
+  assign autoplay = section.settings.autoplay
+  assign autoplay_speed = section.settings.autoplay_speed | times: 1000
+  assign show_arrows = section.settings.show_arrows
+  assign show_dots = section.settings.show_dots
+  assign min_height = section.settings.min_height
+-%}
+
+<section 
+  class="hero-slideshow"
+  id="{{ slideshow_id }}"
+  data-slideshow
+  data-autoplay="{{ autoplay }}"
+  data-autoplay-speed="{{ autoplay_speed }}"
+  style="--slideshow-min-height: {{ min_height }}vh;"
+  aria-label="{{ 'sections.slideshow.slideshow' | t | default: 'Slideshow' }}"
+>
+  <div class="hero-slideshow__slides" role="list">
+    {%- for block in section.blocks -%}
+      {%- liquid
+        assign text_alignment = block.settings.text_alignment | default: 'center'
+        assign overlay_opacity = block.settings.overlay_opacity | divided_by: 100.0
+      -%}
+      <div 
+        class="hero-slideshow__slide{% if forloop.first %} is-active{% endif %}"
+        data-slide-index="{{ forloop.index0 }}"
+        role="listitem"
+        aria-hidden="{% if forloop.first %}false{% else %}true{% endif %}"
+        {{ block.shopify_attributes }}
+      >
+        <div class="hero-slideshow__image-wrapper">
+          {%- if block.settings.image != blank -%}
+            <img
+              class="hero-slideshow__image"
+              src="{{ block.settings.image | image_url: width: 1920 }}"
+              alt="{{ block.settings.image.alt | default: block.settings.heading | escape }}"
+              width="{{ block.settings.image.width }}"
+              height="{{ block.settings.image.height }}"
+              {% if forloop.first %}loading="eager" fetchpriority="high"{% else %}loading="lazy"{% endif %}
+            >
+          {%- else -%}
+            <div class="hero-slideshow__placeholder">
+              {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+            </div>
+          {%- endif -%}
+          <div class="hero-slideshow__overlay" style="--overlay-opacity: {{ overlay_opacity }};"></div>
+        </div>
+
+        <div class="hero-slideshow__content container text-{{ text_alignment }}">
+          {%- if block.settings.subheading != blank -%}
+            <p class="hero-slideshow__subheading">{{ block.settings.subheading }}</p>
+          {%- endif -%}
+          
+          {%- if block.settings.heading != blank -%}
+            <h2 class="hero-slideshow__heading">{{ block.settings.heading }}</h2>
+          {%- endif -%}
+          
+          {%- if block.settings.button_text != blank -%}
+            <a 
+              href="{{ block.settings.button_link | default: '#' }}" 
+              class="hero-slideshow__button btn btn--lg btn--outline-white"
+            >
+              {{ block.settings.button_text }}
+            </a>
+          {%- endif -%}
+        </div>
+      </div>
+    {%- else -%}
+      {%- comment -%} Default slide when no blocks exist {%- endcomment -%}
+      <div class="hero-slideshow__slide is-active" role="listitem">
+        <div class="hero-slideshow__image-wrapper">
+          <div class="hero-slideshow__placeholder">
+            {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg' }}
+          </div>
+          <div class="hero-slideshow__overlay" style="--overlay-opacity: 0.4;"></div>
+        </div>
+        <div class="hero-slideshow__content container text-center">
+          <p class="hero-slideshow__subheading">Welcome to</p>
+          <h2 class="hero-slideshow__heading">{{ shop.name }}</h2>
+          <a href="{{ routes.all_products_collection_url }}" class="hero-slideshow__button btn btn--lg btn--outline-white">
+            Shop Now
+          </a>
+        </div>
+      </div>
+    {%- endfor -%}
+  </div>
+
+  {%- if section.blocks.size > 1 -%}
+    {%- comment -%} Navigation Arrows {%- endcomment -%}
+    {%- if show_arrows -%}
+      <button 
+        type="button" 
+        class="hero-slideshow__arrow hero-slideshow__arrow--prev"
+        data-slideshow-prev
+        aria-label="{{ 'sections.slideshow.previous_slide' | t | default: 'Previous slide' }}"
+      >
+        {% render 'icon', name: 'chevron-left', size: 32 %}
+      </button>
+      <button 
+        type="button" 
+        class="hero-slideshow__arrow hero-slideshow__arrow--next"
+        data-slideshow-next
+        aria-label="{{ 'sections.slideshow.next_slide' | t | default: 'Next slide' }}"
+      >
+        {% render 'icon', name: 'chevron-right', size: 32 %}
+      </button>
+    {%- endif -%}
+
+    {%- comment -%} Navigation Dots {%- endcomment -%}
+    {%- if show_dots -%}
+      <div class="hero-slideshow__dots" role="tablist" aria-label="{{ 'sections.slideshow.slide_navigation' | t | default: 'Slide navigation' }}">
+        {%- for block in section.blocks -%}
+          <button 
+            type="button" 
+            class="hero-slideshow__dot{% if forloop.first %} is-active{% endif %}"
+            data-slideshow-dot="{{ forloop.index0 }}"
+            role="tab"
+            aria-selected="{% if forloop.first %}true{% else %}false{% endif %}"
+            aria-label="{{ 'sections.slideshow.slide_number' | t: number: forloop.index | default: 'Slide' | append: ' ' | append: forloop.index }}"
+          ></button>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  {%- endif -%}
+</section>
+
+{% schema %}
+{
+  "name": "Hero Slideshow",
+  "tag": "section",
+  "class": "section-hero-slideshow",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Enable autoplay",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "label": "Autoplay speed",
+      "min": 3,
+      "max": 10,
+      "step": 1,
+      "default": 5,
+      "unit": "sec"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows",
+      "label": "Show navigation arrows",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_dots",
+      "label": "Show navigation dots",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "min_height",
+      "label": "Minimum height",
+      "min": 40,
+      "max": 100,
+      "step": 5,
+      "default": 80,
+      "unit": "vh"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slide",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Spiritual Journey Awaits"
+        },
+        {
+          "type": "text",
+          "id": "subheading",
+          "label": "Subheading",
+          "default": "Discover Divine Collections"
+        },
+        {
+          "type": "text",
+          "id": "button_text",
+          "label": "Button text",
+          "default": "Shop Now"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "Button link"
+        },
+        {
+          "type": "select",
+          "id": "text_alignment",
+          "label": "Text alignment",
+          "options": [
+            { "value": "left", "label": "Left" },
+            { "value": "center", "label": "Center" },
+            { "value": "right", "label": "Right" }
+          ],
+          "default": "center"
+        },
+        {
+          "type": "range",
+          "id": "overlay_opacity",
+          "label": "Overlay opacity",
+          "min": 0,
+          "max": 80,
+          "step": 5,
+          "default": 40,
+          "unit": "%"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hero Slideshow",
+      "blocks": [
+        {
+          "type": "slide",
+          "settings": {
+            "heading": "Divine Spiritual Collection",
+            "subheading": "Experience the Sacred",
+            "button_text": "Explore Collection",
+            "overlay_opacity": 40
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "heading": "Authentic Puja Items",
+            "subheading": "For Your Daily Worship",
+            "button_text": "Shop Puja Items",
+            "overlay_opacity": 40
+          }
+        },
+        {
+          "type": "slide",
+          "settings": {
+            "heading": "Sacred Idols & Murtis",
+            "subheading": "Handcrafted with Devotion",
+            "button_text": "View Collection",
+            "overlay_opacity": 40
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

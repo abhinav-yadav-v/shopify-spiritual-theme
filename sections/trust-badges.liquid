@@ -1,0 +1,234 @@
+{%- comment -%}
+  Trust Badges Section
+  Displays trust indicators like free shipping, secure payment, etc.
+{%- endcomment -%}
+
+{%- liquid
+  assign heading = section.settings.heading
+  assign layout = section.settings.layout | default: 'row'
+  assign icon_color = section.settings.icon_color
+  assign bg_color = section.settings.background_color
+-%}
+
+<section 
+  class="trust-badges section"
+  {% if bg_color != blank and bg_color != 'rgba(0,0,0,0)' %}style="background-color: {{ bg_color }};"{% endif %}
+>
+  <div class="container">
+    {%- if heading != blank -%}
+      <div class="section__header text-center">
+        <h2 class="section__title">{{ heading }}</h2>
+      </div>
+    {%- endif -%}
+
+    <div class="trust-badges__grid trust-badges__grid--{{ layout }}">
+      {%- for block in section.blocks -%}
+        {%- liquid
+          assign icon_type = block.settings.icon
+          assign custom_icon = block.settings.custom_icon
+          assign badge_heading = block.settings.heading
+          assign badge_description = block.settings.description
+        -%}
+        
+        <div 
+          class="trust-badges__item trust-badge"
+          {{ block.shopify_attributes }}
+        >
+          <div 
+            class="trust-badge__icon"
+            {% if icon_color != blank and icon_color != 'rgba(0,0,0,0)' %}style="color: {{ icon_color }};"{% endif %}
+          >
+            {%- if custom_icon != blank -%}
+              <img
+                src="{{ custom_icon | image_url: width: 64 }}"
+                alt="{{ badge_heading | escape }}"
+                width="32"
+                height="32"
+                loading="lazy"
+              >
+            {%- else -%}
+              {%- case icon_type -%}
+                {%- when 'certificate' -%}
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <circle cx="12" cy="8" r="6"></circle>
+                    <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path>
+                  </svg>
+                {%- when 'truck' -%}
+                  {% render 'icon', name: 'truck', size: 40 %}
+                {%- when 'phone' -%}
+                  {% render 'icon', name: 'phone', size: 40 %}
+                {%- when 'shield' -%}
+                  {% render 'icon', name: 'shield', size: 40 %}
+                {%- when 'heart' -%}
+                  {% render 'icon', name: 'heart', size: 40 %}
+                {%- when 'check' -%}
+                  {% render 'icon', name: 'check', size: 40 %}
+                {%- else -%}
+                  {% render 'icon', name: 'check', size: 40 %}
+              {%- endcase -%}
+            {%- endif -%}
+          </div>
+          
+          <div class="trust-badge__content">
+            {%- if badge_heading != blank -%}
+              <h3 class="trust-badge__heading">{{ badge_heading }}</h3>
+            {%- endif -%}
+            
+            {%- if badge_description != blank -%}
+              <p class="trust-badge__description">{{ badge_description }}</p>
+            {%- endif -%}
+          </div>
+        </div>
+      {%- else -%}
+        {%- comment -%} Default badges when no blocks exist {%- endcomment -%}
+        <div class="trust-badges__item trust-badge">
+          <div class="trust-badge__icon">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <circle cx="12" cy="8" r="6"></circle>
+              <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"></path>
+            </svg>
+          </div>
+          <div class="trust-badge__content">
+            <h3 class="trust-badge__heading">Authenticity Guaranteed</h3>
+            <p class="trust-badge__description">100% genuine products</p>
+          </div>
+        </div>
+        <div class="trust-badges__item trust-badge">
+          <div class="trust-badge__icon">{% render 'icon', name: 'truck', size: 40 %}</div>
+          <div class="trust-badge__content">
+            <h3 class="trust-badge__heading">Free Delivery</h3>
+            <p class="trust-badge__description">On orders above ₹499</p>
+          </div>
+        </div>
+        <div class="trust-badges__item trust-badge">
+          <div class="trust-badge__icon">{% render 'icon', name: 'phone', size: 40 %}</div>
+          <div class="trust-badge__content">
+            <h3 class="trust-badge__heading">24/7 Support</h3>
+            <p class="trust-badge__description">Expert assistance anytime</p>
+          </div>
+        </div>
+        <div class="trust-badges__item trust-badge">
+          <div class="trust-badge__icon">{% render 'icon', name: 'shield', size: 40 %}</div>
+          <div class="trust-badge__content">
+            <h3 class="trust-badge__heading">Secure Payment</h3>
+            <p class="trust-badge__description">Safe & encrypted checkout</p>
+          </div>
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Trust Badges",
+  "tag": "section",
+  "class": "section-trust-badges",
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "Layout",
+      "options": [
+        { "value": "row", "label": "Row" },
+        { "value": "grid", "label": "Grid" }
+      ],
+      "default": "row"
+    },
+    {
+      "type": "color",
+      "id": "icon_color",
+      "label": "Icon color"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background color"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "badge",
+      "name": "Badge",
+      "settings": [
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "Icon",
+          "options": [
+            { "value": "certificate", "label": "Certificate" },
+            { "value": "truck", "label": "Delivery Truck" },
+            { "value": "phone", "label": "Phone/Support" },
+            { "value": "shield", "label": "Shield/Security" },
+            { "value": "heart", "label": "Heart" },
+            { "value": "check", "label": "Checkmark" }
+          ],
+          "default": "certificate"
+        },
+        {
+          "type": "image_picker",
+          "id": "custom_icon",
+          "label": "Custom icon",
+          "info": "Optional: upload a custom icon image"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Trust Badge"
+        },
+        {
+          "type": "text",
+          "id": "description",
+          "label": "Description",
+          "default": "Add your description here"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Trust Badges",
+      "blocks": [
+        {
+          "type": "badge",
+          "settings": {
+            "icon": "certificate",
+            "heading": "Authenticity Certificate",
+            "description": "100% genuine products with certification"
+          }
+        },
+        {
+          "type": "badge",
+          "settings": {
+            "icon": "truck",
+            "heading": "Free Delivery",
+            "description": "Free shipping on orders above ₹499"
+          }
+        },
+        {
+          "type": "badge",
+          "settings": {
+            "icon": "phone",
+            "heading": "Customer Support",
+            "description": "24/7 expert assistance available"
+          }
+        },
+        {
+          "type": "badge",
+          "settings": {
+            "icon": "shield",
+            "heading": "Secure Payment",
+            "description": "100% safe & encrypted checkout"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

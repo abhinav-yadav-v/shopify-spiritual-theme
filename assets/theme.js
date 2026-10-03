@@ -809,6 +809,322 @@
     }
   };
 
+
+  // ============================================
+  // Hero Slideshow
+  // ============================================
+
+  const HeroSlideshow = {
+    selectors: {
+      slideshow: '[data-slideshow]',
+      slide: '.hero-slideshow__slide',
+      prevBtn: '[data-slideshow-prev]',
+      nextBtn: '[data-slideshow-next]',
+      dot: '[data-slideshow-dot]'
+    },
+
+    init() {
+      $$(this.selectors.slideshow).forEach(slideshow => {
+        this.setupSlideshow(slideshow);
+      });
+    },
+
+    setupSlideshow(slideshow) {
+      const slides = $$(this.selectors.slide, slideshow);
+      if (slides.length <= 1) return;
+
+      const state = {
+        currentIndex: 0,
+        isPlaying: slideshow.dataset.autoplay === 'true',
+        interval: parseInt(slideshow.dataset.autoplaySpeed) || 5000,
+        timer: null
+      };
+
+      // Store state on element
+      slideshow._slideshow = state;
+
+      // Navigation buttons
+      const prevBtn = $(this.selectors.prevBtn, slideshow);
+      const nextBtn = $(this.selectors.nextBtn, slideshow);
+      
+      if (prevBtn) {
+        prevBtn.addEventListener('click', () => this.goToPrev(slideshow, slides));
+      }
+      if (nextBtn) {
+        nextBtn.addEventListener('click', () => this.goToNext(slideshow, slides));
+      }
+
+      // Dot navigation
+      $$(this.selectors.dot, slideshow).forEach(dot => {
+        dot.addEventListener('click', () => {
+          const index = parseInt(dot.dataset.slideshowDot);
+          this.goToSlide(slideshow, slides, index);
+        });
+      });
+
+      // Pause on hover
+      slideshow.addEventListener('mouseenter', () => this.pause(slideshow));
+      slideshow.addEventListener('mouseleave', () => {
+        if (slideshow._slideshow.isPlaying) {
+          this.play(slideshow, slides);
+        }
+      });
+
+      // Touch/Swipe support
+      this.setupTouchEvents(slideshow, slides);
+
+      // Keyboard navigation
+      slideshow.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') {
+          this.goToPrev(slideshow, slides);
+        } else if (e.key === 'ArrowRight') {
+          this.goToNext(slideshow, slides);
+        }
+      });
+
+      // Start autoplay
+      if (state.isPlaying) {
+        this.play(slideshow, slides);
+      }
+    },
+
+    goToSlide(slideshow, slides, index) {
+      const state = slideshow._slideshow;
+      const dots = $$(this.selectors.dot, slideshow);
+      
+      // Update current index
+      state.currentIndex = index;
+      
+      // Update slides
+      slides.forEach((slide, i) => {
+        const isActive = i === index;
+        slide.classList.toggle('is-active', isActive);
+        slide.setAttribute('aria-hidden', !isActive);
+      });
+      
+      // Update dots
+      dots.forEach((dot, i) => {
+        const isActive = i === index;
+        dot.classList.toggle('is-active', isActive);
+        dot.setAttribute('aria-selected', isActive);
+      });
+
+      // Reset autoplay timer
+      if (state.isPlaying) {
+        this.pause(slideshow);
+        this.play(slideshow, slides);
+      }
+    },
+
+    goToNext(slideshow, slides) {
+      const state = slideshow._slideshow;
+      const nextIndex = (state.currentIndex + 1) % slides.length;
+      this.goToSlide(slideshow, slides, nextIndex);
+    },
+
+    goToPrev(slideshow, slides) {
+      const state = slideshow._slideshow;
+      const prevIndex = (state.currentIndex - 1 + slides.length) % slides.length;
+      this.goToSlide(slideshow, slides, prevIndex);
+    },
+
+    play(slideshow, slides) {
+      const state = slideshow._slideshow;
+      this.pause(slideshow);
+      state.timer = setInterval(() => {
+        this.goToNext(slideshow, slides);
+      }, state.interval);
+    },
+
+    pause(slideshow) {
+      const state = slideshow._slideshow;
+      if (state.timer) {
+        clearInterval(state.timer);
+        state.timer = null;
+      }
+    },
+
+    setupTouchEvents(slideshow, slides) {
+      let touchStartX = 0;
+      let touchEndX = 0;
+      const minSwipeDistance = 50;
+
+      slideshow.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+      }, { passive: true });
+
+      slideshow.addEventListener('touchmove', (e) => {
+        touchEndX = e.touches[0].clientX;
+      }, { passive: true });
+
+      slideshow.addEventListener('touchend', () => {
+        const swipeDistance = touchStartX - touchEndX;
+        
+        if (Math.abs(swipeDistance) > minSwipeDistance) {
+          if (swipeDistance > 0) {
+            this.goToNext(slideshow, slides);
+          } else {
+            this.goToPrev(slideshow, slides);
+          }
+        }
+      });
+    }
+  };
+
+  // ============================================
+  // Testimonials Carousel
+  // ============================================
+
+  const TestimonialsCarousel = {
+    selectors: {
+      carousel: '[data-testimonial-carousel]',
+      track: '.testimonials__track',
+      item: '.testimonials__item',
+      prevBtn: '[data-testimonial-prev]',
+      nextBtn: '[data-testimonial-next]'
+    },
+
+    init() {
+      $$(this.selectors.carousel).forEach(carousel => {
+        this.setupCarousel(carousel);
+      });
+    },
+
+    setupCarousel(carousel) {
+      const track = $(this.selectors.track, carousel);
+      const items = $$(this.selectors.item, carousel);
+      
+      if (!track || items.length <= 1) return;
+
+      const state = {
+        currentIndex: 0,
+        itemsPerView: this.getItemsPerView(),
+        totalItems: items.length,
+        isPlaying: carousel.dataset.autoplay === 'true',
+        timer: null
+      };
+
+      carousel._carousel = state;
+
+      // Navigation buttons
+      const prevBtn = $(this.selectors.prevBtn, carousel);
+      const nextBtn = $(this.selectors.nextBtn, carousel);
+
+      if (prevBtn) {
+        prevBtn.addEventListener('click', () => this.goToPrev(carousel, track));
+      }
+      if (nextBtn) {
+        nextBtn.addEventListener('click', () => this.goToNext(carousel, track));
+      }
+
+      // Pause on hover
+      carousel.addEventListener('mouseenter', () => this.pause(carousel));
+      carousel.addEventListener('mouseleave', () => {
+        if (state.isPlaying) {
+          this.play(carousel, track);
+        }
+      });
+
+      // Touch/Swipe support
+      this.setupTouchEvents(carousel, track);
+
+      // Update on resize
+      window.addEventListener('resize', debounce(() => {
+        state.itemsPerView = this.getItemsPerView();
+        this.updateTrackPosition(track, state);
+      }, 200));
+
+      // Start autoplay
+      if (state.isPlaying) {
+        this.play(carousel, track);
+      }
+    },
+
+    getItemsPerView() {
+      if (window.innerWidth >= 1024) return 3;
+      if (window.innerWidth >= 768) return 2;
+      return 1;
+    },
+
+    updateTrackPosition(track, state) {
+      const itemWidth = 100 / state.itemsPerView;
+      const offset = state.currentIndex * itemWidth;
+      track.style.transform = `translateX(-${offset}%)`;
+    },
+
+    goToSlide(carousel, track, index) {
+      const state = carousel._carousel;
+      const maxIndex = Math.max(0, state.totalItems - state.itemsPerView);
+      
+      state.currentIndex = Math.max(0, Math.min(index, maxIndex));
+      this.updateTrackPosition(track, state);
+    },
+
+    goToNext(carousel, track) {
+      const state = carousel._carousel;
+      const maxIndex = Math.max(0, state.totalItems - state.itemsPerView);
+      
+      if (state.currentIndex >= maxIndex) {
+        this.goToSlide(carousel, track, 0);
+      } else {
+        this.goToSlide(carousel, track, state.currentIndex + 1);
+      }
+    },
+
+    goToPrev(carousel, track) {
+      const state = carousel._carousel;
+      const maxIndex = Math.max(0, state.totalItems - state.itemsPerView);
+      
+      if (state.currentIndex <= 0) {
+        this.goToSlide(carousel, track, maxIndex);
+      } else {
+        this.goToSlide(carousel, track, state.currentIndex - 1);
+      }
+    },
+
+    play(carousel, track) {
+      const state = carousel._carousel;
+      this.pause(carousel);
+      state.timer = setInterval(() => {
+        this.goToNext(carousel, track);
+      }, 5000);
+    },
+
+    pause(carousel) {
+      const state = carousel._carousel;
+      if (state && state.timer) {
+        clearInterval(state.timer);
+        state.timer = null;
+      }
+    },
+
+    setupTouchEvents(carousel, track) {
+      let touchStartX = 0;
+      let touchEndX = 0;
+      const minSwipeDistance = 50;
+
+      carousel.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+      }, { passive: true });
+
+      carousel.addEventListener('touchmove', (e) => {
+        touchEndX = e.touches[0].clientX;
+      }, { passive: true });
+
+      carousel.addEventListener('touchend', () => {
+        const swipeDistance = touchStartX - touchEndX;
+        
+        if (Math.abs(swipeDistance) > minSwipeDistance) {
+          if (swipeDistance > 0) {
+            this.goToNext(carousel, track);
+          } else {
+            this.goToPrev(carousel, track);
+          }
+        }
+      });
+    }
+  };
+
   // ============================================
   // Initialize All Modules
   // ============================================
@@ -825,6 +1141,8 @@
     Tabs.init();
     Modal.init();
     Cart.init();
+    HeroSlideshow.init();
+    TestimonialsCarousel.init();
   }
 
   // Run on DOMContentLoaded
@@ -842,7 +1160,9 @@
     $,
     $$,
     Cart,
-    Modal
+    Modal,
+    HeroSlideshow,
+    TestimonialsCarousel
   };
 
 })();

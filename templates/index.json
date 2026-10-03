@@ -1,0 +1,192 @@
+{
+  "sections": {
+    "hero-slideshow": {
+      "type": "hero-slideshow",
+      "blocks": {
+        "slide-1": {
+          "type": "slide",
+          "settings": {
+            "heading": "Divine Spiritual Collection",
+            "subheading": "Experience the Sacred",
+            "button_text": "Explore Collection",
+            "text_alignment": "center",
+            "overlay_opacity": 40
+          }
+        },
+        "slide-2": {
+          "type": "slide",
+          "settings": {
+            "heading": "Authentic Puja Items",
+            "subheading": "For Your Daily Worship",
+            "button_text": "Shop Puja Items",
+            "text_alignment": "center",
+            "overlay_opacity": 40
+          }
+        },
+        "slide-3": {
+          "type": "slide",
+          "settings": {
+            "heading": "Sacred Idols & Murtis",
+            "subheading": "Handcrafted with Devotion",
+            "button_text": "View Collection",
+            "text_alignment": "center",
+            "overlay_opacity": 40
+          }
+        }
+      },
+      "block_order": ["slide-1", "slide-2", "slide-3"],
+      "settings": {
+        "autoplay": true,
+        "autoplay_speed": 5,
+        "show_arrows": true,
+        "show_dots": true,
+        "min_height": 80
+      }
+    },
+    "trust-badges": {
+      "type": "trust-badges",
+      "blocks": {
+        "badge-1": {
+          "type": "badge",
+          "settings": {
+            "icon": "certificate",
+            "heading": "Authenticity Certificate",
+            "description": "100% genuine products with certification"
+          }
+        },
+        "badge-2": {
+          "type": "badge",
+          "settings": {
+            "icon": "truck",
+            "heading": "Free Delivery",
+            "description": "Free shipping on orders above ₹499"
+          }
+        },
+        "badge-3": {
+          "type": "badge",
+          "settings": {
+            "icon": "phone",
+            "heading": "Customer Support",
+            "description": "24/7 expert assistance available"
+          }
+        },
+        "badge-4": {
+          "type": "badge",
+          "settings": {
+            "icon": "shield",
+            "heading": "Secure Payment",
+            "description": "100% safe & encrypted checkout"
+          }
+        }
+      },
+      "block_order": ["badge-1", "badge-2", "badge-3", "badge-4"],
+      "settings": {
+        "layout": "row"
+      }
+    },
+    "featured-collections": {
+      "type": "featured-collections",
+      "blocks": {
+        "collection-1": {
+          "type": "collection",
+          "settings": {
+            "button_text": "Shop Idols"
+          }
+        },
+        "collection-2": {
+          "type": "collection",
+          "settings": {
+            "button_text": "Shop Puja Items"
+          }
+        },
+        "collection-3": {
+          "type": "collection",
+          "settings": {
+            "button_text": "Shop Accessories"
+          }
+        }
+      },
+      "block_order": ["collection-1", "collection-2", "collection-3"],
+      "settings": {
+        "heading": "Shop by Category",
+        "heading_alignment": "center",
+        "columns_desktop": 3,
+        "columns_mobile": 1,
+        "show_product_count": true
+      }
+    },
+    "product-grid": {
+      "type": "product-grid",
+      "settings": {
+        "heading": "Featured Products",
+        "products_to_show": 8,
+        "columns_desktop": 4,
+        "show_vendor": false,
+        "show_sale_badge": true,
+        "quick_view_enabled": false
+      }
+    },
+    "testimonials": {
+      "type": "testimonials",
+      "blocks": {
+        "testimonial-1": {
+          "type": "testimonial",
+          "settings": {
+            "reviewer_name": "Priya Sharma",
+            "review_date": "2 weeks ago",
+            "rating": 5,
+            "review_text": "The idol I received was absolutely beautiful. The craftsmanship is exceptional and it arrived well-packaged. Truly blessed to have it in my home temple.",
+            "show_verified": true
+          }
+        },
+        "testimonial-2": {
+          "type": "testimonial",
+          "settings": {
+            "reviewer_name": "Rajesh Kumar",
+            "review_date": "1 month ago",
+            "rating": 5,
+            "review_text": "Fast delivery and authentic products. The puja items are of high quality. Will definitely order again for all my spiritual needs.",
+            "show_verified": true
+          }
+        },
+        "testimonial-3": {
+          "type": "testimonial",
+          "settings": {
+            "reviewer_name": "Meera Patel",
+            "review_date": "3 weeks ago",
+            "rating": 5,
+            "review_text": "I ordered a complete puja thali set and it exceeded my expectations. Beautiful design and great value for money. Highly recommended!",
+            "show_verified": true
+          }
+        }
+      },
+      "block_order": ["testimonial-1", "testimonial-2", "testimonial-3"],
+      "settings": {
+        "heading": "What Our Customers Say",
+        "layout": "carousel",
+        "columns": 3,
+        "autoplay": false
+      }
+    },
+    "newsletter": {
+      "type": "newsletter",
+      "settings": {
+        "heading": "Join Our Spiritual Community",
+        "description": "<p>Subscribe to receive updates on new arrivals, special offers, and spiritual wisdom delivered to your inbox.</p>",
+        "placeholder_text": "Enter your email address",
+        "button_text": "Subscribe",
+        "success_message": "Thank you for subscribing! Welcome to our community.",
+        "background_color": "#8B0000",
+        "text_color": "#FFFFFF"
+      }
+    }
+  },
+  "order": [
+    "hero-slideshow",
+    "trust-badges",
+    "featured-collections",
+    "product-grid",
+    "testimonials",
+    "newsletter"
+  ]
+}
